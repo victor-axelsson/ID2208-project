@@ -55,8 +55,23 @@ public class XMLFileHandler {
     }
 
     private String[] getAllWSDLNames(){
-        return new String[] {
-                WSDL_PATH + "/BangoSubscriptionBillingAPIProfile.wsdl"
-        };
+
+        File folder = new File(WSDL_PATH);
+        File[] listOfFiles = folder.listFiles();
+        String[] names = new String[listOfFiles.length];
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                names[i] = listOfFiles[i].getName();
+            } else if (listOfFiles[i].isDirectory()) {
+                System.out.println("Directory " + listOfFiles[i].getName());
+            }
+        }
+
+        return names;
+    }
+
+    public List<Document> getDocs() {
+        return docs;
     }
 }
