@@ -10,10 +10,11 @@ import java.util.Random;
  * Created by victoraxelsson on 2017-02-27.
  */
 public abstract class Database {
-    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost:8889/wordnet";
-    private static final String USER = "root";
-    private static final String PASS = "root";
+
+    private static final String JDBC_DRIVER = System.getProperty("JDBC_DRIVER");
+    private static final String DB_URL = System.getProperty("DB_URL");
+    private static final String USER = System.getProperty("DB_USERNAME");
+    private static final String PASS = System.getProperty("DB_USERPASSWORD");
     Connection connection;
     Random rand;
 

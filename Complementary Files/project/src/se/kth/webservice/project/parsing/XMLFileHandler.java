@@ -17,7 +17,7 @@ import java.util.List;
 public class XMLFileHandler {
 
 
-    private static final String WSDL_PATH = "/Users/victoraxelsson/Desktop/intellijProjects/ID2208-project/Complementary Files/WSDLs";
+    private static final String WSDL_PATH = System.getProperty("WSDLPATH");
     private List<Document> docs;
 
     public void setup(){
