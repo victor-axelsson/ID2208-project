@@ -383,5 +383,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="mysql:mysql-connector-java:6.0.5" level="application" />
   </component>
 </module>
