@@ -3,6 +3,7 @@ package se.kth.webservice.project;
 import se.kth.webservice.project.data.IWordnet;
 import se.kth.webservice.project.data.WordnetSQL;
 import se.kth.webservice.project.model.DictionaryLookup;
+import se.kth.webservice.project.parsing.XMLFileHandler;
 
 import java.util.List;
 
@@ -15,7 +16,10 @@ public class Main {
         System.out.println("Flowers and kittens and wiskers");
 
         IWordnet repo = new WordnetSQL();
-        List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
+        //List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
+
+        XMLFileHandler fileHandler = new XMLFileHandler();
+        fileHandler.setup();
 
         System.out.println("done");
 
