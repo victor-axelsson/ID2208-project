@@ -35,6 +35,7 @@ public class Main {
 
         XMLFileHandler fileHandler = new XMLFileHandler();
         fileHandler.setup();
+        fileHandler.process();
 
         System.out.println("done");
 

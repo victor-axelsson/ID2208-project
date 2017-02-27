@@ -1,7 +1,11 @@
 package se.kth.webservice.project.parsing;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import se.kth.webservice.project.model.XMLModelMapping;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,6 +23,7 @@ public class XMLFileHandler {
 
     private static final String WSDL_PATH = System.getProperty("WSDLPATH");
     private List<Document> docs;
+    private List<XMLModelMapping> modelMappings;
 
     public void setup(){
 
@@ -73,5 +78,93 @@ public class XMLFileHandler {
 
     public List<Document> getDocs() {
         return docs;
+    }
+
+    public List<XMLModelMapping> getModelMappings() {
+        return modelMappings;
+    }
+
+    private List<Element> toList(NodeList nodes){
+        List<Element> elements = new ArrayList<>();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node n = nodes.item(i);
+            if(n instanceof Element){
+                elements.add((Element)nodes.item(i));
+            }
+        }
+        return elements;
+    }
+
+
+
+    public void process(){
+
+        modelMappings = new ArrayList<>();
+
+        for (int i = 0; i < docs.size(); i++){
+            Document doc = docs.get(i);
+            XMLModelMapping model = new XMLModelMapping();
+
+            NodeList outputNodes = doc.getElementsByTagName("wsdl:output");
+            NodeList inputNodes = doc.getElementsByTagName("wsdl:input");
+
+            model.setInputs(toList(outputNodes));
+            model.setOutputs(toList(inputNodes));
+
+            //Collect messages and such
+            processModel(model, doc);
+
+            modelMappings.add(model);
+        }
+
+        System.out.println("asd");
+    }
+
+    //Do we need this?
+    private void processParts(List<Element> parts, String messageName, Document doc){
+        for(int i = 0; i < parts.size(); i++){
+            Element part = parts.get(i);
+
+            if(part.hasAttribute("type")){
+                String type = part.getAttribute("type").split(":")[1];
+
+                //this is a basic type, like string or int
+            }else if(part.hasAttribute("element")){
+                //this is a complex custom type
+            }
+
+        }
+    }
+
+    private void processModel(XMLModelMapping model, Document doc){
+
+        //Add all messages
+        NodeList messages = doc.getElementsByTagName("wsdl:message");
+        for(int i = 0; i < messages.getLength(); i++){
+            Element e = (Element)messages.item(i);
+            String name = e.getAttribute("name");
+            model.getMessages().put(name, e);
+
+            List<Element> parts =  toList(e.getChildNodes());
+            model.getMessageParts().put(name, parts);
+
+            //Don't know if we need this?
+            //processParts(parts, name, doc);
+        }
+
+
+        for(int i = 0; i < model.getOutputs().size(); i++){
+            Element o = model.getOutputs().get(i);
+
+            String message = o.getAttribute("message");
+            if(message != null && message.trim().length() > 0){
+                String[] parts = message.split(":");
+
+                //Here we add the actual messages
+                String messageName = parts[1];
+                model.getMessageOutputNames().add(messageName);
+            }
+
+        }
     }
 }
