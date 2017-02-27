@@ -1,0 +1,9 @@
+Edit Distance algorithm
+http://www.algorithmist.com/index.php/Edit_Distance
+
+
+Download DB for wordnet
+http://wordnet.princeton.edu/wordnet/download/current-version/
+
+Protoge site
+http://webprotege.stanford.edu/#List:coll=Home;
