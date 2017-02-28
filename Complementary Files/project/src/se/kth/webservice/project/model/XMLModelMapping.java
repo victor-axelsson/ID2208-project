@@ -14,6 +14,7 @@ public class XMLModelMapping {
     private List<Element> outputs;
     private List<Element> inputs;
     private List<String> messageOutputNames;
+    private List<String> messageInputNames;
     private Map<String, Element> messages;
     private Map<String, List<Element>> messageParts;
 
@@ -23,6 +24,15 @@ public class XMLModelMapping {
         this.messageOutputNames = new ArrayList<>();
         this.messages = new HashMap<>();
         this.messageParts = new HashMap<>();
+        this.messageInputNames = new ArrayList<>();
+    }
+
+    public List<String> getMessageInputNames() {
+        return messageInputNames;
+    }
+
+    public void setMessageInputNames(List<String> messageInputNames) {
+        this.messageInputNames = messageInputNames;
     }
 
     public Map<String, List<Element>> getMessageParts() {

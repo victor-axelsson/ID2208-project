@@ -12,8 +12,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by victoraxelsson on 2017-02-27.
@@ -25,9 +24,26 @@ public class XMLFileHandler {
     private List<Document> docs;
     private List<XMLModelMapping> modelMappings;
     private OnCompare onCompare;
+    private DocumentBuilder dBuilder;
 
+    private Set<String> blacklist;
     public XMLFileHandler(OnCompare onCompare){
         this.onCompare = onCompare;
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setValidating(false);
+        try {
+            dBuilder = dbFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        blacklist = new HashSet<>();
+        blacklist.add("BangoDirectBillingAPIProfile.wsdl");
+        blacklist.add("compositeFlightStatsAPIProfile.wsdl");
+        blacklist.add("DeveloperGardenClickandBuyAPIProfile.wsdl");
+        blacklist.add("GoToBillingAPIProfile.wsdl");
+        blacklist.add("InnovativeMerchantSolutionsAPIProfile.wsdl");
+        blacklist.add("PaymentVisionPayAPIProfile.wsdl");
     }
 
     public void setup(){
@@ -36,31 +52,44 @@ public class XMLFileHandler {
             docs = new ArrayList<>();
             String[] names = getAllWSDLNames();
             for(int i = 0; i < names.length; i++){
-                docs.add(getDocument(names[i]));
+
+
+                if(blacklist.contains(names[i])){
+                    System.out.println("It's blacklisted, so skipping: " + names[i]);
+                    continue;
+                }
+
+                System.out.println("Parsing: " + (i + 1) + "/" + names.length + ". " + names[i]);
+
+                Document d = getDocument(names[i]);
+
+                if(d != null){
+                    docs.add(d);
+                }
             }
 
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.println("done");
+        System.out.println("Done with parsing");
 
         //optional, but recommended
         //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
     }
 
-    private Document getDocument(String fullPath) throws ParserConfigurationException, IOException, SAXException {
-        File fXmlFile = new File(WSDL_PATH + "/BangoSubscriptionBillingAPIProfile.wsdl");
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = null;
+    private Document getDocument(String fullPath) throws IOException{
+        File fXmlFile = new File(WSDL_PATH + "/" + fullPath);
+
         Document doc = null;
-        dBuilder = dbFactory.newDocumentBuilder();
-        doc = dBuilder.parse(fXmlFile);
-        doc.getDocumentElement().normalize();
+        try {
+            doc = dBuilder.parse(fXmlFile);
+            doc.getDocumentElement().normalize();
+        } catch (SAXException e) {
+            System.err.println(fullPath + " is not a valid XML doc");
+            doc = null;
+        }
+
         return doc;
     }
 
@@ -113,8 +142,8 @@ public class XMLFileHandler {
             NodeList outputNodes = doc.getElementsByTagName("wsdl:output");
             NodeList inputNodes = doc.getElementsByTagName("wsdl:input");
 
-            model.setInputs(toList(outputNodes));
-            model.setOutputs(toList(inputNodes));
+            model.setOutputs(toList(outputNodes));
+            model.setInputs(toList(inputNodes));
 
             //Collect messages and such
             processModel(model, doc);
@@ -157,7 +186,7 @@ public class XMLFileHandler {
             //processParts(parts, name, doc);
         }
 
-
+        //Collect all messages names that are actually used in the outputs
         for(int i = 0; i < model.getOutputs().size(); i++){
             Element o = model.getOutputs().get(i);
 
@@ -169,7 +198,20 @@ public class XMLFileHandler {
                 String messageName = parts[1];
                 model.getMessageOutputNames().add(messageName);
             }
+        }
 
+        //Collect all messages names that are actually used in the input
+        for(int i = 0; i < model.getInputs().size(); i++){
+            Element o = model.getInputs().get(i);
+
+            String message = o.getAttribute("message");
+            if(message != null && message.trim().length() > 0){
+                String[] parts = message.split(":");
+
+                //Here we add the actual messages
+                String messageName = parts[1];
+                model.getMessageInputNames().add(messageName);
+            }
         }
     }
 

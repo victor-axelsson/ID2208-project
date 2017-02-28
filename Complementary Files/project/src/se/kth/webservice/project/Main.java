@@ -4,7 +4,9 @@ import se.kth.webservice.project.data.IWordnet;
 import se.kth.webservice.project.data.WordnetSQL;
 import se.kth.webservice.project.model.DictionaryLookup;
 import se.kth.webservice.project.model.XMLModelMapping;
+import se.kth.webservice.project.parsing.IComparable;
 import se.kth.webservice.project.parsing.OnCompare;
+import se.kth.webservice.project.parsing.SyntacticComparator;
 import se.kth.webservice.project.parsing.XMLFileHandler;
 
 import java.util.List;
@@ -16,8 +18,7 @@ public class Main {
 
     private static int counter = 0;
 
-    public static void main (String args[]){
-
+    private static void setupSystemProps(String[] args){
         //Setup system properties
         String WSDLPATH = args[0];
         String JDBC_DRIVER = args[1];
@@ -30,23 +31,29 @@ public class Main {
         System.setProperty("DB_URL", DB_URL);
         System.setProperty("DB_USERNAME", DB_USERNAME);
         System.setProperty("DB_USERPASSWORD", DB_USERPASSWORD);
+    }
 
+    public static void main (String args[]){
 
-        System.out.println("Flowers and kittens and wiskers");
+        setupSystemProps(args);
+
+        IComparable comparator = new SyntacticComparator();
 
         IWordnet repo = new WordnetSQL();
         List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
 
+        //There are 496 comparisments for 32 docs. A doc is not compared to itself.
         XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
             @Override
             public void compare(XMLModelMapping a, XMLModelMapping b) {
-                counter++;
+                float rating = comparator.getSimmilarityRating(a, b);
+                System.out.println("Rating: " + rating);
             }
         });
         fileHandler.setup();
         fileHandler.process();
         fileHandler.startComparing();
-        System.out.println("Counter: " + counter);
+
 
         System.out.println("done");
 
