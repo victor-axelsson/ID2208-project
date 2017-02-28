@@ -199,10 +199,15 @@ public class XMLFileHandler {
     }
 
     public static boolean isComplexType(Element part){
-        if(part.hasAttribute("type")){
+        if(part.getTagName().contains("simpleType")){
+            System.out.println("Was true");
+            return true;
+        }else if(part.hasAttribute("type")){
+
             String type = part.getAttribute("type").split(":")[1];
 
             //this is a basic type, like string or int
+
 
             return !BASE_TYPES.contains(type);
 
@@ -210,6 +215,7 @@ public class XMLFileHandler {
             //this is a complex custom type
             return true;
         }
+
 
         return false;
     }
