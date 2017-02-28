@@ -25,12 +25,15 @@ public class XMLFileHandler {
     private List<XMLModelMapping> modelMappings;
     private OnCompare onCompare;
     private DocumentBuilder dBuilder;
+    private static Set<String> BASE_TYPES;
+
 
     private Set<String> blacklist;
     public XMLFileHandler(OnCompare onCompare){
         this.onCompare = onCompare;
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         dbFactory.setValidating(false);
+        dbFactory.setNamespaceAware(true);
         try {
             dBuilder = dbFactory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
@@ -44,6 +47,29 @@ public class XMLFileHandler {
         blacklist.add("GoToBillingAPIProfile.wsdl");
         blacklist.add("InnovativeMerchantSolutionsAPIProfile.wsdl");
         blacklist.add("PaymentVisionPayAPIProfile.wsdl");
+
+        BASE_TYPES = new HashSet<>();
+        BASE_TYPES.add("string");
+        BASE_TYPES.add("decimal");
+        BASE_TYPES.add("integer");
+        BASE_TYPES.add("boolean");
+        BASE_TYPES.add("date");
+        BASE_TYPES.add("time");
+        BASE_TYPES.add("long");
+        BASE_TYPES.add("byte");
+        BASE_TYPES.add("time");
+        BASE_TYPES.add("short");
+        BASE_TYPES.add("unsignedLong");
+        BASE_TYPES.add("unsignedInt");
+        BASE_TYPES.add("unsignedShort");
+        BASE_TYPES.add("unsignedByte");
+        BASE_TYPES.add("anyURI");
+        BASE_TYPES.add("float");
+        BASE_TYPES.add("double");
+        BASE_TYPES.add("QName");
+        BASE_TYPES.add("dateTime");
+        BASE_TYPES.add("int");
+        BASE_TYPES.add("base64Binary");
     }
 
     public void setup(){
@@ -178,7 +204,7 @@ public class XMLFileHandler {
 
             //this is a basic type, like string or int
 
-            return false;
+            return !BASE_TYPES.contains(type);
 
         }else if(part.hasAttribute("element")){
             //this is a complex custom type
@@ -188,16 +214,25 @@ public class XMLFileHandler {
         return false;
     }
 
-    private static List<Element> flattenComplex(Element complex){
+    private static List<Element> flattenComplex(Element complex, Document doc){
         List<Element> response = new ArrayList<>();
 
+        if(complex == null){
+            return response;
+        }
         NodeList elements = complex.getElementsByTagName("s:element");
+
         for(int i = 0; i < elements.getLength(); i++){
             Element e = (Element) elements.item(i);
 
             if(isComplexType(e)){
-                throw new RuntimeException("Not implemented");
-                //response.addAll(flattenComplex(e));
+                String[] name =  e.getAttribute("type").split(":");
+
+
+                Element recursiveComplex = findElement(name[1], name[0] + ":" +  name[1], doc);
+
+                //throw new RuntimeException("Not implemented");
+                response.addAll(flattenComplex(recursiveComplex, doc));
             }else{
                 response.add(e);
             }
@@ -206,10 +241,30 @@ public class XMLFileHandler {
         return response;
     }
 
+    private static Element findElement(String name, String fullName, Document doc){
+        NodeList complexType = doc.getElementsByTagNameNS("*","complexType");
+        NodeList elements = doc.getElementsByTagNameNS("*","element");
+
+        List<Element> elementsList = new ArrayList<>();
+        elementsList.addAll(toList(complexType));
+        elementsList.addAll(toList(elements));
+
+        for(int z = 0; z < elementsList.size(); z++){
+            Element e = elementsList.get(z);
+            String n = e.getAttribute("name");
+
+            if(e.hasAttribute("name") && (e.getAttribute("name").equals(fullName) || e.getAttribute("name").equals(name))){
+                return e;
+            }
+        }
+
+        System.out.println(fullName + " was not found");
+        return null;
+    }
+
 
     public static List<Element> flatten(List<Element> original, Document doc){
         List<Element> response = new ArrayList<>();
-
 
         for(int i = 0; i < original.size(); i++){
             Element curr = original.get(i);
@@ -221,27 +276,7 @@ public class XMLFileHandler {
 
                 String fullName = curr.getAttribute("element");
 
-                NodeList complexType = doc.getElementsByTagName("s:complexType");
-                NodeList elements = doc.getElementsByTagName("s:element");
-
-                List<Element> elementsList = new ArrayList<>();
-                elementsList.addAll(toList(complexType));
-                elementsList.addAll(toList(elements));
-
-                for(int z = 0; z < elementsList.size(); z++){
-                    Element e = elementsList.get(z);
-                    String n = e.getAttribute("name");
-
-                    if(e.hasAttribute("name") && (e.getAttribute("name").equals(fullName) || e.getAttribute("name").equals(elementName))){
-                        response.addAll(flattenComplex(e));
-                    }
-                }
-
-                System.out.println("asd");
-
-
-               //NodeList children =  curr.getElementsByTagName("s:element");
-               //response.addAll(toList(children));
+                response.addAll(flattenComplex(findElement(elementName, fullName, doc), doc));
             }else{
                 response.add(curr); 
             }
