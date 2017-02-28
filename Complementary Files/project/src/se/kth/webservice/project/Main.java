@@ -3,6 +3,8 @@ package se.kth.webservice.project;
 import se.kth.webservice.project.data.IWordnet;
 import se.kth.webservice.project.data.WordnetSQL;
 import se.kth.webservice.project.model.DictionaryLookup;
+import se.kth.webservice.project.model.XMLModelMapping;
+import se.kth.webservice.project.parsing.OnCompare;
 import se.kth.webservice.project.parsing.XMLFileHandler;
 
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.List;
  * Created by victoraxelsson on 2017-02-27.
  */
 public class Main {
+
+    private static int counter = 0;
 
     public static void main (String args[]){
 
@@ -33,9 +37,16 @@ public class Main {
         IWordnet repo = new WordnetSQL();
         List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
 
-        XMLFileHandler fileHandler = new XMLFileHandler();
+        XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
+            @Override
+            public void compare(XMLModelMapping a, XMLModelMapping b) {
+                counter++;
+            }
+        });
         fileHandler.setup();
         fileHandler.process();
+        fileHandler.startComparing();
+        System.out.println("Counter: " + counter);
 
         System.out.println("done");
 

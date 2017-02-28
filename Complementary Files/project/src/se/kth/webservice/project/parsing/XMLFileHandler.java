@@ -24,6 +24,11 @@ public class XMLFileHandler {
     private static final String WSDL_PATH = System.getProperty("WSDLPATH");
     private List<Document> docs;
     private List<XMLModelMapping> modelMappings;
+    private OnCompare onCompare;
+
+    public XMLFileHandler(OnCompare onCompare){
+        this.onCompare = onCompare;
+    }
 
     public void setup(){
 
@@ -165,6 +170,14 @@ public class XMLFileHandler {
                 model.getMessageOutputNames().add(messageName);
             }
 
+        }
+    }
+
+    public void startComparing(){
+        for (int i = 0; i < modelMappings.size() -1;  i++){
+            for(int j = i +1; j < modelMappings.size(); j++){
+                onCompare.compare(modelMappings.get(i), modelMappings.get(j));
+            }
         }
     }
 }
