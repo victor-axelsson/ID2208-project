@@ -118,7 +118,7 @@ public class XMLFileHandler {
         return modelMappings;
     }
 
-    private List<Element> toList(NodeList nodes){
+    private static List<Element> toList(NodeList nodes){
         List<Element> elements = new ArrayList<>();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node n = nodes.item(i);
@@ -186,6 +186,68 @@ public class XMLFileHandler {
         }
 
         return false;
+    }
+
+    private static List<Element> flattenComplex(Element complex){
+        List<Element> response = new ArrayList<>();
+
+        NodeList elements = complex.getElementsByTagName("s:element");
+        for(int i = 0; i < elements.getLength(); i++){
+            Element e = (Element) elements.item(i);
+
+            if(isComplexType(e)){
+                throw new RuntimeException("Not implemented");
+                //response.addAll(flattenComplex(e));
+            }else{
+                response.add(e);
+            }
+        }
+
+        return response;
+    }
+
+
+    public static List<Element> flatten(List<Element> original, Document doc){
+        List<Element> response = new ArrayList<>();
+
+
+        for(int i = 0; i < original.size(); i++){
+            Element curr = original.get(i);
+
+            if(isComplexType(curr)){
+
+                String[] elementNameParts = curr.getAttribute("element").split(":");
+                String elementName = elementNameParts[elementNameParts.length -1];
+
+                String fullName = curr.getAttribute("element");
+
+                NodeList complexType = doc.getElementsByTagName("s:complexType");
+                NodeList elements = doc.getElementsByTagName("s:element");
+
+                List<Element> elementsList = new ArrayList<>();
+                elementsList.addAll(toList(complexType));
+                elementsList.addAll(toList(elements));
+
+                for(int z = 0; z < elementsList.size(); z++){
+                    Element e = elementsList.get(z);
+                    String n = e.getAttribute("name");
+
+                    if(e.hasAttribute("name") && (e.getAttribute("name").equals(fullName) || e.getAttribute("name").equals(elementName))){
+                        response.addAll(flattenComplex(e));
+                    }
+                }
+
+                System.out.println("asd");
+
+
+               //NodeList children =  curr.getElementsByTagName("s:element");
+               //response.addAll(toList(children));
+            }else{
+                response.add(curr); 
+            }
+        }
+
+        return response;
     }
 
     private void processModel(XMLModelMapping model, Document doc){
