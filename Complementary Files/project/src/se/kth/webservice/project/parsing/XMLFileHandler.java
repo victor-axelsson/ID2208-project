@@ -170,6 +170,12 @@ public class XMLFileHandler {
             NodeList outputNodes = doc.getElementsByTagName("wsdl:output");
             NodeList inputNodes = doc.getElementsByTagName("wsdl:input");
 
+            List<Element> simpleTypes = toList(doc.getElementsByTagNameNS("*", "simpleType"));
+            for (int z = 0; z < simpleTypes.size(); z++){
+                String name = simpleTypes.get(z).getAttribute("name");
+                model.getSimpleTypes().put(name, simpleTypes.get(z));
+            }
+
             model.setOutputs(toList(outputNodes));
             model.setInputs(toList(inputNodes));
 
@@ -198,18 +204,30 @@ public class XMLFileHandler {
         }
     }
 
-    public static boolean isComplexType(Element part){
-        if(part.getTagName().contains("simpleType")){
-            System.out.println("Was true");
-            return true;
-        }else if(part.hasAttribute("type")){
+    public static boolean isComplexType(Element part, XMLModelMapping model){
+
+
+       if(part.hasAttribute("type")){
 
             String type = part.getAttribute("type").split(":")[1];
 
             //this is a basic type, like string or int
 
+           if(BASE_TYPES.contains(type)){
+               return false;
+           }
 
-            return !BASE_TYPES.contains(type);
+           if(part.hasAttribute("name")){
+               String withNS = part.getAttribute("name");
+               String[] withoutNSParts = part.getAttribute("name").split(":");
+               String withoutNs = "";
+
+               if(withoutNSParts.length > 1){
+                   withoutNs = withoutNSParts[1];
+               }
+
+               return model.getSimpleTypes().containsKey(withNS) || model.getSimpleTypes().containsKey(withoutNs);
+           }
 
         }else if(part.hasAttribute("element")){
             //this is a complex custom type
@@ -217,28 +235,30 @@ public class XMLFileHandler {
         }
 
 
+
+
         return false;
     }
 
-    private static List<Element> flattenComplex(Element complex, Document doc){
+    private static List<Element> flattenComplex(Element complex, Document doc, XMLModelMapping model){
         List<Element> response = new ArrayList<>();
 
         if(complex == null){
             return response;
         }
-        NodeList elements = complex.getElementsByTagName("s:element");
+        NodeList elements = complex.getElementsByTagNameNS("*", "element");
 
         for(int i = 0; i < elements.getLength(); i++){
             Element e = (Element) elements.item(i);
 
-            if(isComplexType(e)){
+            if(isComplexType(e, model)){
                 String[] name =  e.getAttribute("type").split(":");
 
 
                 Element recursiveComplex = findElement(name[1], name[0] + ":" +  name[1], doc);
 
                 //throw new RuntimeException("Not implemented");
-                response.addAll(flattenComplex(recursiveComplex, doc));
+                response.addAll(flattenComplex(recursiveComplex, doc, model));
             }else{
                 response.add(e);
             }
@@ -269,13 +289,13 @@ public class XMLFileHandler {
     }
 
 
-    public static List<Element> flatten(List<Element> original, Document doc){
+    public static List<Element> flatten(List<Element> original, Document doc, XMLModelMapping model){
         List<Element> response = new ArrayList<>();
 
         for(int i = 0; i < original.size(); i++){
             Element curr = original.get(i);
 
-            if(isComplexType(curr)){
+            if(isComplexType(curr, model)){
 
                 String[] elementNameParts = curr.getAttribute("element").split(":");
                 String elementName = elementNameParts[elementNameParts.length -1];
@@ -288,7 +308,7 @@ public class XMLFileHandler {
                     fullName = curr.getAttribute("type");
                 }
 
-                response.addAll(flattenComplex(findElement(elementName, fullName, doc), doc));
+                response.addAll(flattenComplex(findElement(elementName, fullName, doc), doc, model));
             }else{
                 response.add(curr); 
             }
@@ -347,6 +367,8 @@ public class XMLFileHandler {
             for(int j = i +1; j < modelMappings.size(); j++){
                 onCompare.compare(modelMappings.get(i), modelMappings.get(j));
             }
+
+            System.out.println("---- Done with comparing doc: " + (i +1) + "/" + (modelMappings.size() -1) + " ----");
         }
     }
 }

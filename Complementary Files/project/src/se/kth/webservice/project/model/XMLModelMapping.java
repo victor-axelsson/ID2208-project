@@ -20,6 +20,7 @@ public class XMLModelMapping {
     private Map<String, List<Element>> messageParts;
     private String filename;
     private Document fullDocument;
+    private Map<String, Element> simpleTypes;
 
     public XMLModelMapping() {
         this.outputs = new ArrayList<>();
@@ -28,10 +29,19 @@ public class XMLModelMapping {
         this.messages = new HashMap<>();
         this.messageParts = new HashMap<>();
         this.messageInputNames = new ArrayList<>();
+        this.simpleTypes = new HashMap<>();
     }
 
     public Document getFullDocument() {
         return fullDocument;
+    }
+
+    public Map<String, Element> getSimpleTypes() {
+        return simpleTypes;
+    }
+
+    public void setSimpleTypes(Map<String, Element> simpleTypes) {
+        this.simpleTypes = simpleTypes;
     }
 
     public void setFullDocument(Document fullDocument) {
