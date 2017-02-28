@@ -9,4 +9,5 @@ import java.util.List;
  */
 public interface IWordnet {
     List<DictionaryLookup> lookupInDictionary(String term);
+    List<DictionaryLookup> lookupLinks(String term, String secondTerm);
 }
