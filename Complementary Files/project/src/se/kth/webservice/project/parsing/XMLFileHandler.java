@@ -282,6 +282,12 @@ public class XMLFileHandler {
 
                 String fullName = curr.getAttribute("element");
 
+                if (fullName.isEmpty()) {
+                    elementNameParts = curr.getAttribute("type").split(":");
+                    elementName = elementNameParts[elementNameParts.length -1];
+                    fullName = curr.getAttribute("type");
+                }
+
                 response.addAll(flattenComplex(findElement(elementName, fullName, doc), doc));
             }else{
                 response.add(curr); 
