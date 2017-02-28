@@ -10,8 +10,7 @@ import se.kth.webservice.project.model.XMLModelMapping;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -185,7 +184,31 @@ public class XMLFileHandler {
             modelMappings.add(model);
         }
 
+        saveCache();
+
         System.out.println("asd");
+    }
+
+    private void saveCache(){
+
+        try{
+            // Serialize data object to a file
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("cache.txt"));
+            out.writeObject(modelMappings);
+            out.close();
+
+            /*
+            // Serialize data object to a byte array
+            ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
+            out = new ObjectOutputStream(bos) ;
+            out.writeObject(modelMappings);
+            out.close();
+            */
+
+            // Get the bytes of the serialized object
+            //byte[] buf = bos.toByteArray();
+        } catch (IOException e) {
+        }
     }
 
     //Do we need this?

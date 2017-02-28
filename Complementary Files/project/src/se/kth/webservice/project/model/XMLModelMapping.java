@@ -3,6 +3,7 @@ package se.kth.webservice.project.model;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
  * Created by victoraxelsson on 2017-02-27.
  */
-public class XMLModelMapping {
+public class XMLModelMapping implements Serializable{
     private List<Element> outputs;
     private List<Element> inputs;
     private List<String> messageOutputNames;
