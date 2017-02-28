@@ -64,7 +64,6 @@ public class SyntacticComparator implements IComparable {
     @Override
     public float getSimmilarityRating(XMLModelMapping a, XMLModelMapping b) {
 
-asd
         System.out.println("---- Comparing ---- \n" + a.getFilename() + "\n" + b.getFilename() + "\n----");
         for(int i = 0; i < a.getMessageOutputNames().size(); i++){
             for(int j = 0; j < b.getMessageInputNames().size(); j++){
