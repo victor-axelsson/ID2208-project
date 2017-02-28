@@ -138,6 +138,8 @@ public class XMLFileHandler {
         for (int i = 0; i < docs.size(); i++){
             Document doc = docs.get(i);
             XMLModelMapping model = new XMLModelMapping();
+            model.setFilename(doc.getDocumentURI());
+            model.setFullDocument(doc);
 
             NodeList outputNodes = doc.getElementsByTagName("wsdl:output");
             NodeList inputNodes = doc.getElementsByTagName("wsdl:input");

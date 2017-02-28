@@ -1,5 +1,6 @@
 package se.kth.webservice.project.model;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class XMLModelMapping {
     private List<String> messageInputNames;
     private Map<String, Element> messages;
     private Map<String, List<Element>> messageParts;
+    private String filename;
+    private Document fullDocument;
 
     public XMLModelMapping() {
         this.outputs = new ArrayList<>();
@@ -25,6 +28,22 @@ public class XMLModelMapping {
         this.messages = new HashMap<>();
         this.messageParts = new HashMap<>();
         this.messageInputNames = new ArrayList<>();
+    }
+
+    public Document getFullDocument() {
+        return fullDocument;
+    }
+
+    public void setFullDocument(Document fullDocument) {
+        this.fullDocument = fullDocument;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public List<String> getMessageInputNames() {
