@@ -1,4 +1,4 @@
-package transition;
+package ontology;
 
 /**
  * Copyright 2010 Websoft research group, Nanjing University, PR China

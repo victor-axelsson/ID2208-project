@@ -55,7 +55,12 @@ public class Main {
         fileHandler.startComparing();
 
 
-        System.out.println("done");
+        System.out.println("done, minScore is " + SyntacticComparator.minScore +
+                " number of operation pairs with less than 5 is " + SyntacticComparator.count);
+        System.out.println("less than 4 " + SyntacticComparator.counter4);
+        System.out.println("less than 3 " + SyntacticComparator.counter3);
+        System.out.println("less than 2 " + SyntacticComparator.counter2);
+        System.out.println("less than 1 " + SyntacticComparator.counter1);
 
     }
 }
