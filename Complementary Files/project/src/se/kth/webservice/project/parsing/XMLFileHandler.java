@@ -172,6 +172,22 @@ public class XMLFileHandler {
         }
     }
 
+    public static boolean isComplexType(Element part){
+        if(part.hasAttribute("type")){
+            String type = part.getAttribute("type").split(":")[1];
+
+            //this is a basic type, like string or int
+
+            return false;
+
+        }else if(part.hasAttribute("element")){
+            //this is a complex custom type
+            return true;
+        }
+
+        return false;
+    }
+
     private void processModel(XMLModelMapping model, Document doc){
 
         //Add all messages
