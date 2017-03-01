@@ -4,7 +4,10 @@ import se.kth.webservice.project.data.IWordnet;
 import se.kth.webservice.project.data.WordnetSQL;
 import se.kth.webservice.project.model.DictionaryLookup;
 import se.kth.webservice.project.model.XMLModelMapping;
+import se.kth.webservice.project.output.ElementComparisonResult;
+import se.kth.webservice.project.output.OperationComparisonResult;
 import se.kth.webservice.project.output.WsdlComparisonResult;
+import se.kth.webservice.project.output_model.*;
 import se.kth.webservice.project.parsing.IComparable;
 import se.kth.webservice.project.parsing.OnCompare;
 import se.kth.webservice.project.parsing.SyntacticComparator;
@@ -13,10 +16,12 @@ import se.kth.webservice.project.parsing.XMLFileHandler;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-import static com.hp.hpl.jena.sparql.junit.QueryTestSuiteFactory.results;
 
 /**
  * Created by victoraxelsson on 2017-02-27.
@@ -96,7 +101,6 @@ public class Main {
         XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
             @Override
             public void compare(XMLModelMapping a, XMLModelMapping b) {
-
                 /*
                 // Only for remote
                 new Thread(new Runnable() {
@@ -113,7 +117,9 @@ public class Main {
 
                 try {
                     WsdlComparisonResult rating = localComparer.getSimmilarityRating(b, a);
-                    localList.add(rating);
+                    if (rating.getScore() > 0){
+                        localList.add(rating);
+                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -123,7 +129,15 @@ public class Main {
         fileHandler.process();
         fileHandler.startComparing();
 
-        System.out.println(results.size());
+      Collections.sort(localList, new Comparator<WsdlComparisonResult>() {
+            @Override
+            public int compare(WsdlComparisonResult o1, WsdlComparisonResult o2) {
+                return Double.compare(o2.getScore(), o1.getScore());
+            }
+        });
+
+        System.out.println(localList.size());
+        output(localList);
 
 //        System.out.println("done, minScore is " + SyntacticComparator.minScore +
 //                " number of operation pairs with less than 5 is " + SyntacticComparator.count);
@@ -132,5 +146,51 @@ public class Main {
 //        System.out.println("less than 2 " + SyntacticComparator.counter2);
 //        System.out.println("less than 1 " + SyntacticComparator.counter1);
 
+    }
+
+    private static void output(List<WsdlComparisonResult> results) {
+        ObjectFactory objectFactory = new ObjectFactory();
+        WSMatchingType wsMatchingType = objectFactory.createWSMatchingType();
+        for (WsdlComparisonResult wsdlComparisonResult : results) {
+            MatchedWebServiceType matchedWebServiceType = objectFactory.createMatchedWebServiceType();
+            matchedWebServiceType.setOutputServiceName(wsdlComparisonResult.getFirst());
+            matchedWebServiceType.setInputServiceName(wsdlComparisonResult.getSecond());
+            matchedWebServiceType.setWsScore(wsdlComparisonResult.getScore());
+            for (OperationComparisonResult operationComparisonResult : wsdlComparisonResult.getOperationComparisonResults()) {
+                MatchedOperationType matchedOperationType = objectFactory.createMatchedOperationType();
+                matchedOperationType.setInputOperationName(operationComparisonResult.getFirst());
+                matchedOperationType.setOutputOperationName(operationComparisonResult.getSecond());
+                matchedOperationType.setOpScore(operationComparisonResult.getScore());
+
+                for (ElementComparisonResult elementComparisonResult : operationComparisonResult.getElementComparisonResults()) {
+                    MatchedElementType matchedElementType = objectFactory.createMatchedElementType();
+                    matchedElementType.setInputElement(elementComparisonResult.getFirst());
+                    matchedElementType.setOutputElement(elementComparisonResult.getSecond());
+                    matchedElementType.setScore(elementComparisonResult.getScore());
+                    matchedOperationType.getMacthedElement().add(matchedElementType);
+                }
+                matchedWebServiceType.getMacthedOperation().add(matchedOperationType);
+            }
+            wsMatchingType.getMacthing().add(matchedWebServiceType);
+        }
+        saveToFile(wsMatchingType);
+    }
+
+    private static void saveToFile(WSMatchingType wsMatchingType) {
+        try {
+            javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.newInstance(wsMatchingType.getClass().getPackage().getName());
+            javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
+            marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
+            marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            OutputStream os = new FileOutputStream( new File("output.xml" ));
+            marshaller.marshal( wsMatchingType, os );
+            os.close();
+        } catch (javax.xml.bind.JAXBException ex) {
+            java.util.logging.Logger.getLogger("global").log(java.util.logging.Level.SEVERE, null, ex); //NOI18N
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

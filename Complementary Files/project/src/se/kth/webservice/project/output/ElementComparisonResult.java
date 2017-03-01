@@ -8,12 +8,22 @@ import java.io.Serializable;
 public class ElementComparisonResult implements Serializable{
     private final String first;
     private final String second;
-    private final int score;
+    private final double score;
 
     public ElementComparisonResult(String first, String second, int score) {
         this.first = first;
         this.second = second;
-        this.score = score;
+        this.score = convertEditDistanceToScore(score);
+    }
+
+    private double convertEditDistanceToScore(int score) {
+        if (score == 0) return 1.0;
+        if (score == 1) return 0.95;
+        if (score == 2) return 0.9;
+        if (score == 3) return 0.8;
+        if (score == 4) return 0.7;
+        if (score == 5) return 0.5;
+        return 0.0;
     }
 
     public String getFirst() {
@@ -24,7 +34,7 @@ public class ElementComparisonResult implements Serializable{
         return second;
     }
 
-    public int getScore() {
+    public double getScore() {
         return score;
     }
 
@@ -53,7 +63,7 @@ public class ElementComparisonResult implements Serializable{
     public int hashCode() {
         int result = first != null ? first.hashCode() : 0;
         result = 31 * result + (second != null ? second.hashCode() : 0);
-        result = 31 * result + score;
+        result = (int) (31 * result + score);
         return result;
     }
 }

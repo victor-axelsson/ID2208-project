@@ -192,9 +192,9 @@ public class XMLFileHandler {
             modelMappings.add(model);
         }
 
-        saveCache();
+        //saveCache();
 
-        System.out.println("asd");
+        //System.out.println("asd");
     }
 
     private void saveCache(){
@@ -397,6 +397,7 @@ public class XMLFileHandler {
         for (int i = 0; i < modelMappings.size() -1;  i++){
             for(int j = i +1; j < modelMappings.size(); j++){
                 onCompare.compare(modelMappings.get(i), modelMappings.get(j));
+                onCompare.compare(modelMappings.get(j), modelMappings.get(i));
             }
 
             System.out.println("---- Done with comparing doc: " + (i +1) + "/" + (modelMappings.size() -1) + " ----");
