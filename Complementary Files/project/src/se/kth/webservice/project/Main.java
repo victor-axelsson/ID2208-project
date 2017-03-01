@@ -13,11 +13,15 @@ import se.kth.webservice.project.parsing.OnCompare;
 import se.kth.webservice.project.parsing.SyntacticComparator;
 import se.kth.webservice.project.parsing.XMLFileHandler;
 
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 
 /**
  * Created by victoraxelsson on 2017-02-27.
@@ -41,40 +45,99 @@ public class Main {
         System.setProperty("DB_USERPASSWORD", DB_USERPASSWORD);
     }
 
+    private static List<WsdlComparisonResult> remoteList;
+    private static List<WsdlComparisonResult> localList;
+
+    private static IComparable getRMIComparator(){
+
+        //Instatiate the list to store the results in
+        remoteList = new ArrayList<>();
+
+        //Get the remote comparator
+        IComparable remoteComparator = null;
+        try {
+            try {
+                LocateRegistry.getRegistry(1099).list();
+            } catch (RemoteException e) {
+                LocateRegistry.createRegistry(1099);
+            }
+            remoteComparator = (IComparable) Naming.lookup("comparator");
+        } catch (Exception e) {
+            System.out.println("The runtime failed: " + e.getMessage());
+            System.exit(0);
+        }
+
+        return remoteComparator;
+    }
+
+    private static IComparable getLocalComparator(){
+
+        //Instatiate the list to store the results in
+        localList = new ArrayList<>();
+
+        IComparable localComparer = null;
+        try {
+            localComparer = new SyntacticComparator();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        return localComparer;
+    }
+
     public static void main (String args[]){
 
         setupSystemProps(args);
 
-        IComparable comparator = new SyntacticComparator();
+        //IWordnet repo = new WordnetSQL();
+        //List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
 
-        IWordnet repo = new WordnetSQL();
-        List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
 
-        List<WsdlComparisonResult> results = new ArrayList<>();
+        //IComparable remoteComparer = getRMIComparator();
+        IComparable localComparer = getLocalComparator();
+
 
         //There are 496 comparisments for 32 docs. A doc is not compared to itself.
         XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
             @Override
             public void compare(XMLModelMapping a, XMLModelMapping b) {
-                WsdlComparisonResult rating = comparator.getSimmilarityRating(a, b);
-                if (rating.getScore() > 0)
-                    results.add(rating);
-                System.out.println(rating);
+                /*
+                // Only for remote
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            WsdlComparisonResult rating = finalRemoteComparator.getSimmilarityRating(a, b);
+                            remoteList.add(rating);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                */
+
+                try {
+                    WsdlComparisonResult rating = localComparer.getSimmilarityRating(b, a);
+                    if (rating.getScore() > 0){
+                        localList.add(rating);
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
         });
         fileHandler.setup();
         fileHandler.process();
         fileHandler.startComparing();
 
-      Collections.sort(results, new Comparator<WsdlComparisonResult>() {
+      Collections.sort(localList, new Comparator<WsdlComparisonResult>() {
             @Override
             public int compare(WsdlComparisonResult o1, WsdlComparisonResult o2) {
                 return Double.compare(o2.getScore(), o1.getScore());
             }
         });
 
-        System.out.println(results.size());
-        output(results);
+        System.out.println(localList.size());
+        output(localList);
 
 //        System.out.println("done, minScore is " + SyntacticComparator.minScore +
 //                " number of operation pairs with less than 5 is " + SyntacticComparator.count);

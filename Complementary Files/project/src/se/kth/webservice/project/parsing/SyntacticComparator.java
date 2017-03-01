@@ -7,13 +7,19 @@ import se.kth.webservice.project.output.ElementComparisonResult;
 import se.kth.webservice.project.output.OperationComparisonResult;
 import se.kth.webservice.project.output.WsdlComparisonResult;
 
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by victoraxelsson on 2017-02-28.
  */
-public class SyntacticComparator implements IComparable {
+public class SyntacticComparator extends UnicastRemoteObject implements IComparable{
+
+    public SyntacticComparator() throws RemoteException {}
+
 //    public static double minScore = 20;
 //    public static int count = 0;
 //    public static int counter4 = 0;

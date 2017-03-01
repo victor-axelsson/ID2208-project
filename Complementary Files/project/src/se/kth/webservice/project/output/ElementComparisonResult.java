@@ -1,9 +1,11 @@
 package se.kth.webservice.project.output;
 
+import java.io.Serializable;
+
 /**
  * Created by Nick on 3/1/2017.
  */
-public class ElementComparisonResult {
+public class ElementComparisonResult implements Serializable{
     private final String first;
     private final String second;
     private final double score;

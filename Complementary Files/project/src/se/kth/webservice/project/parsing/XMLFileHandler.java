@@ -47,28 +47,36 @@ public class XMLFileHandler {
         blacklist.add("InnovativeMerchantSolutionsAPIProfile.wsdl");
         blacklist.add("PaymentVisionPayAPIProfile.wsdl");
 
-        BASE_TYPES = new HashSet<>();
-        BASE_TYPES.add("string");
-        BASE_TYPES.add("decimal");
-        BASE_TYPES.add("integer");
-        BASE_TYPES.add("boolean");
-        BASE_TYPES.add("date");
-        BASE_TYPES.add("time");
-        BASE_TYPES.add("long");
-        BASE_TYPES.add("byte");
-        BASE_TYPES.add("time");
-        BASE_TYPES.add("short");
-        BASE_TYPES.add("unsignedLong");
-        BASE_TYPES.add("unsignedInt");
-        BASE_TYPES.add("unsignedShort");
-        BASE_TYPES.add("unsignedByte");
-        BASE_TYPES.add("anyURI");
-        BASE_TYPES.add("float");
-        BASE_TYPES.add("double");
-        BASE_TYPES.add("QName");
-        BASE_TYPES.add("dateTime");
-        BASE_TYPES.add("int");
-        BASE_TYPES.add("base64Binary");
+
+    }
+
+    private static Set<String> getBaseTypes(){
+        if(BASE_TYPES == null){
+            BASE_TYPES = new HashSet<>();
+            BASE_TYPES.add("string");
+            BASE_TYPES.add("decimal");
+            BASE_TYPES.add("integer");
+            BASE_TYPES.add("boolean");
+            BASE_TYPES.add("date");
+            BASE_TYPES.add("time");
+            BASE_TYPES.add("long");
+            BASE_TYPES.add("byte");
+            BASE_TYPES.add("time");
+            BASE_TYPES.add("short");
+            BASE_TYPES.add("unsignedLong");
+            BASE_TYPES.add("unsignedInt");
+            BASE_TYPES.add("unsignedShort");
+            BASE_TYPES.add("unsignedByte");
+            BASE_TYPES.add("anyURI");
+            BASE_TYPES.add("float");
+            BASE_TYPES.add("double");
+            BASE_TYPES.add("QName");
+            BASE_TYPES.add("dateTime");
+            BASE_TYPES.add("int");
+            BASE_TYPES.add("base64Binary");
+        }
+
+        return BASE_TYPES;
     }
 
     public void setup(){
@@ -236,7 +244,7 @@ public class XMLFileHandler {
 
             //this is a basic type, like string or int
 
-           if(BASE_TYPES.contains(type)){
+           if(getBaseTypes().contains(type)){
                return false;
            }
 

@@ -1,11 +1,12 @@
 package se.kth.webservice.project.output;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Nick on 3/1/2017.
  */
-public class WsdlComparisonResult {
+public class WsdlComparisonResult implements Serializable {
     private final String first;
     private final String second;
     private final double score;
