@@ -5,6 +5,8 @@ import se.kth.webservice.project.data.WordnetSQL;
 import se.kth.webservice.project.model.DictionaryLookup;
 import se.kth.webservice.project.model.XMLModelMapping;
 import se.kth.webservice.project.parsing.*;
+import se.kth.webservice.project.parsing.SyntacticComparator;
+import service.se.kth.webservice.project.parsing.*;
 
 import java.util.List;
 
@@ -34,11 +36,14 @@ public class Main {
 
         setupSystemProps(args);
 
-        SemanticParser p = new SemanticParser();
-        p.parse();
+        //SemanticParser p = new SemanticParser();
+        //p.parse();
 
-        /*
-        IComparable comparator = new SyntacticComparator();
+        SyntacticComparatorService service = new SyntacticComparatorService();
+        service.se.kth.webservice.project.parsing.SyntacticComparator port = service.getSyntacticComparatorPort();
+
+
+        SyntacticComparator comparator = new SyntacticComparator();
 
 
         IWordnet repo = new WordnetSQL();
@@ -48,8 +53,10 @@ public class Main {
         XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
             @Override
             public void compare(XMLModelMapping a, XMLModelMapping b) {
-                float rating = comparator.getSimmilarityRating(a, b);
-                System.out.println("Rating: " + rating);
+                //float rating = comparator.calculateSimmilarityRating(a, b);
+                //System.out.println("Rating: " + rating);
+
+                float rating = port.calculateSimmilarityRating((service.se.kth.webservice.project.parsing.)a,(XMLModelMapping)b);
             }
         });
         fileHandler.setup();
@@ -63,6 +70,6 @@ public class Main {
         System.out.println("less than 3 " + SyntacticComparator.counter3);
         System.out.println("less than 2 " + SyntacticComparator.counter2);
         System.out.println("less than 1 " + SyntacticComparator.counter1);
-        */
+
     }
 }

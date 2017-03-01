@@ -2,7 +2,13 @@ package se.kth.webservice.project.model;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +28,8 @@ public class XMLModelMapping implements Serializable{
     private String filename;
     private Document fullDocument;
     private Map<String, Element> simpleTypes;
+    private String wsdlName;
+    private DocumentBuilder dBuilder;
 
     public XMLModelMapping() {
         this.outputs = new ArrayList<>();
@@ -31,13 +39,41 @@ public class XMLModelMapping implements Serializable{
         this.messageParts = new HashMap<>();
         this.messageInputNames = new ArrayList<>();
         this.simpleTypes = new HashMap<>();
+
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setValidating(false);
+        dbFactory.setNamespaceAware(true);
+        try {
+            dBuilder = dbFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
-    public Document getFullDocument() {
+    public Document fullDocumentGetter() {
+
         return fullDocument;
+
+        /*
+        String wsdlPath = System.getProperty("WSDL_PATH");
+        File fXmlFile = new File(wsdlPath + "/" + wsdlName);
+
+        Document doc = null;
+        try {
+            doc = dBuilder.parse(fXmlFile);
+            doc.getDocumentElement().normalize();
+        } catch (SAXException e) {
+            System.err.println(wsdlPath + "/" + wsdlName + " is not a valid XML doc");
+            doc = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return doc;
+        */
     }
 
-    public Map<String, Element> getSimpleTypes() {
+    public Map<String, Element> simpleTypesGetter() {
         return simpleTypes;
     }
 
@@ -45,7 +81,9 @@ public class XMLModelMapping implements Serializable{
         this.simpleTypes = simpleTypes;
     }
 
-    public void setFullDocument(Document fullDocument) {
+    public void fullDocumentSetter(Document fullDocument) {
+        String[] p = fullDocument.getDocumentURI().split("/");
+        wsdlName = p[p.length-1];
         this.fullDocument = fullDocument;
     }
 
@@ -57,7 +95,7 @@ public class XMLModelMapping implements Serializable{
         this.filename = filename;
     }
 
-    public List<String> getMessageInputNames() {
+    public List<String> messageInputNamesGetter() {
         return messageInputNames;
     }
 
@@ -65,7 +103,7 @@ public class XMLModelMapping implements Serializable{
         this.messageInputNames = messageInputNames;
     }
 
-    public Map<String, List<Element>> getMessageParts() {
+    public Map<String, List<Element>> messagePartsGetter() {
         return messageParts;
     }
 
@@ -73,7 +111,7 @@ public class XMLModelMapping implements Serializable{
         this.messageParts = messageParts;
     }
 
-    public Map<String, Element> getMessages() {
+    public Map<String, Element> messagesGetter() {
         return messages;
     }
 
@@ -81,7 +119,7 @@ public class XMLModelMapping implements Serializable{
         this.messages = messages;
     }
 
-    public List<String> getMessageOutputNames() {
+    public List<String> messageOutputNamesGetter() {
         return messageOutputNames;
     }
 
@@ -89,7 +127,7 @@ public class XMLModelMapping implements Serializable{
         this.messageOutputNames = messageOutputNames;
     }
 
-    public List<Element> getOutputs() {
+    public List<Element> outputsGetter() {
         return outputs;
     }
 
@@ -97,7 +135,7 @@ public class XMLModelMapping implements Serializable{
         this.outputs = outputs;
     }
 
-    public List<Element> getInputs() {
+    public List<Element> inputsGetter() {
         return inputs;
     }
 

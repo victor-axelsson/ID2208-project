@@ -4,13 +4,16 @@ import ontology.EditDistance;
 import org.w3c.dom.Element;
 import se.kth.webservice.project.model.XMLModelMapping;
 
+import javax.jws.WebMethod;
+import javax.jws.WebService;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by victoraxelsson on 2017-02-28.
  */
-public class SyntacticComparator implements IComparable {
+@WebService
+public class SyntacticComparator {
     public static double minScore = 20;
     public static int count = 0;
     public static int counter4 = 0;
@@ -19,8 +22,8 @@ public class SyntacticComparator implements IComparable {
     public static int counter1 = 0;
 
     private void compareIO(String outputMessageA, String inputMessageB, XMLModelMapping a, XMLModelMapping b){
-        List<Element> aParts = XMLFileHandler.flatten(a.getMessageParts().get(outputMessageA), a.getFullDocument(), a);
-        List<Element> bParts = XMLFileHandler.flatten(b.getMessageParts().get(inputMessageB), b.getFullDocument(), b);
+        List<Element> aParts = XMLFileHandler.flatten(a.messagePartsGetter().get(outputMessageA), a.fullDocumentGetter(), a);
+        List<Element> bParts = XMLFileHandler.flatten(b.messagePartsGetter().get(inputMessageB), b.fullDocumentGetter(), b);
 
         List<Integer> scores = new ArrayList<>();
         double avg = 0.0;
@@ -61,16 +64,16 @@ public class SyntacticComparator implements IComparable {
         return res;
     }
 
-    @Override
-    public float getSimmilarityRating(XMLModelMapping a, XMLModelMapping b) {
+    @WebMethod
+    public float calculateSimmilarityRating(XMLModelMapping a, XMLModelMapping b) {
 
         System.out.println("---- Comparing ---- \n" + a.getFilename() + "\n" + b.getFilename() + "\n----");
-        for(int i = 0; i < a.getMessageOutputNames().size(); i++){
-            for(int j = 0; j < b.getMessageInputNames().size(); j++){
-                compareIO(a.getMessageOutputNames().get(i), b.getMessageInputNames().get(j), a, b);
+        for(int i = 0; i < a.messageOutputNamesGetter().size(); i++){
+            for(int j = 0; j < b.messageInputNamesGetter().size(); j++){
+                compareIO(a.messageOutputNamesGetter().get(i), b.messageInputNamesGetter().get(j), a, b);
             }
 
-            System.out.println("Rating: i: " + (i + 1) + "/" + a.getMessageOutputNames().size());
+            System.out.println("Rating: i: " + (i + 1) + "/" + a.messageOutputNamesGetter().size());
         }
 
 

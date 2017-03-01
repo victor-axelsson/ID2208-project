@@ -164,7 +164,7 @@ public class XMLFileHandler {
             Document doc = docs.get(i);
             XMLModelMapping model = new XMLModelMapping();
             model.setFilename(doc.getDocumentURI());
-            model.setFullDocument(doc);
+            model.fullDocumentSetter(doc);
 
             NodeList outputNodes = doc.getElementsByTagName("wsdl:output");
             NodeList inputNodes = doc.getElementsByTagName("wsdl:input");
@@ -172,7 +172,7 @@ public class XMLFileHandler {
             List<Element> simpleTypes = toList(doc.getElementsByTagNameNS("*", "simpleType"));
             for (int z = 0; z < simpleTypes.size(); z++){
                 String name = simpleTypes.get(z).getAttribute("name");
-                model.getSimpleTypes().put(name, simpleTypes.get(z));
+                model.simpleTypesGetter().put(name, simpleTypes.get(z));
             }
 
             model.setOutputs(toList(outputNodes));
@@ -249,7 +249,7 @@ public class XMLFileHandler {
                    withoutNs = withoutNSParts[1];
                }
 
-               return model.getSimpleTypes().containsKey(withNS) || model.getSimpleTypes().containsKey(withoutNs);
+               return model.simpleTypesGetter().containsKey(withNS) || model.simpleTypesGetter().containsKey(withoutNs);
            }
 
         }else if(part.hasAttribute("element")){
@@ -347,18 +347,18 @@ public class XMLFileHandler {
         for(int i = 0; i < messages.getLength(); i++){
             Element e = (Element)messages.item(i);
             String name = e.getAttribute("name");
-            model.getMessages().put(name, e);
+            model.messagesGetter().put(name, e);
 
             List<Element> parts =  toList(e.getChildNodes());
-            model.getMessageParts().put(name, parts);
+            model.messagePartsGetter().put(name, parts);
 
             //Don't know if we need this?
             //processParts(parts, name, doc);
         }
 
         //Collect all messages names that are actually used in the outputs
-        for(int i = 0; i < model.getOutputs().size(); i++){
-            Element o = model.getOutputs().get(i);
+        for(int i = 0; i < model.outputsGetter().size(); i++){
+            Element o = model.outputsGetter().get(i);
 
             String message = o.getAttribute("message");
             if(message != null && message.trim().length() > 0){
@@ -366,13 +366,13 @@ public class XMLFileHandler {
 
                 //Here we add the actual messages
                 String messageName = parts[1];
-                model.getMessageOutputNames().add(messageName);
+                model.messageOutputNamesGetter().add(messageName);
             }
         }
 
         //Collect all messages names that are actually used in the input
-        for(int i = 0; i < model.getInputs().size(); i++){
-            Element o = model.getInputs().get(i);
+        for(int i = 0; i < model.inputsGetter().size(); i++){
+            Element o = model.inputsGetter().get(i);
 
             String message = o.getAttribute("message");
             if(message != null && message.trim().length() > 0){
@@ -380,7 +380,7 @@ public class XMLFileHandler {
 
                 //Here we add the actual messages
                 String messageName = parts[1];
-                model.getMessageInputNames().add(messageName);
+                model.messageInputNamesGetter().add(messageName);
             }
         }
     }

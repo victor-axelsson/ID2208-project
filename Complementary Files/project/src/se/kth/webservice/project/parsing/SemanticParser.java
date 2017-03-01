@@ -45,7 +45,7 @@ public class SemanticParser {
         for (OWLClass cls : ontology.getClassesInSignature()) {
             String id = cls.getIRI().toString();
             //String label = get(cls, RDFS_LABEL.toString()).get(0);
-            System.out.println(label + " [" + id + "]");
+            //System.out.println(label + " [" + id + "]");
         }
     }
 }
