@@ -4,11 +4,13 @@ import se.kth.webservice.project.data.IWordnet;
 import se.kth.webservice.project.data.WordnetSQL;
 import se.kth.webservice.project.model.DictionaryLookup;
 import se.kth.webservice.project.model.XMLModelMapping;
+import se.kth.webservice.project.output.WsdlComparisonResult;
 import se.kth.webservice.project.parsing.IComparable;
 import se.kth.webservice.project.parsing.OnCompare;
 import se.kth.webservice.project.parsing.SyntacticComparator;
 import se.kth.webservice.project.parsing.XMLFileHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,25 +44,29 @@ public class Main {
         IWordnet repo = new WordnetSQL();
         List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
 
+        List<WsdlComparisonResult> results = new ArrayList<>();
+
         //There are 496 comparisments for 32 docs. A doc is not compared to itself.
         XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
             @Override
             public void compare(XMLModelMapping a, XMLModelMapping b) {
-                float rating = comparator.getSimmilarityRating(a, b);
-                System.out.println("Rating: " + rating);
+                WsdlComparisonResult rating = comparator.getSimmilarityRating(a, b);
+                results.add(rating);
+                System.out.println(rating);
             }
         });
         fileHandler.setup();
         fileHandler.process();
         fileHandler.startComparing();
 
+        System.out.println(results.size());
 
-        System.out.println("done, minScore is " + SyntacticComparator.minScore +
-                " number of operation pairs with less than 5 is " + SyntacticComparator.count);
-        System.out.println("less than 4 " + SyntacticComparator.counter4);
-        System.out.println("less than 3 " + SyntacticComparator.counter3);
-        System.out.println("less than 2 " + SyntacticComparator.counter2);
-        System.out.println("less than 1 " + SyntacticComparator.counter1);
+//        System.out.println("done, minScore is " + SyntacticComparator.minScore +
+//                " number of operation pairs with less than 5 is " + SyntacticComparator.count);
+//        System.out.println("less than 4 " + SyntacticComparator.counter4);
+//        System.out.println("less than 3 " + SyntacticComparator.counter3);
+//        System.out.println("less than 2 " + SyntacticComparator.counter2);
+//        System.out.println("less than 1 " + SyntacticComparator.counter1);
 
     }
 }
