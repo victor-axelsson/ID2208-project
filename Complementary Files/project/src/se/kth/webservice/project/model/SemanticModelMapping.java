@@ -24,7 +24,7 @@ public class SemanticModelMapping implements Serializable {
     private String filename;
     private Document fullDocument;
 
-    private Map<String, String> partToModelRef;
+    private Map<Element, String> partToModelRef;
 
     public SemanticModelMapping() {
         this.outputs = new ArrayList<>();
@@ -87,11 +87,11 @@ public class SemanticModelMapping implements Serializable {
         this.messageParts = messageParts;
     }
 
-    public Map<String, String> getPartToModelRef() {
+    public Map<Element, String> getPartToModelRef() {
         return partToModelRef;
     }
 
-    public void setPartToModelRef(Map<String, String> partToModelRef) {
+    public void setPartToModelRef(Map<Element, String> partToModelRef) {
         this.partToModelRef = partToModelRef;
     }
 

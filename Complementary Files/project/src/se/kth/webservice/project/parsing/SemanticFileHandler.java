@@ -21,8 +21,15 @@ public class SemanticFileHandler extends FileHandler {
 
     @Override
     public void startComparing() {
-        System.out.println("starting to compare");
-        onCompare.compare(null, null);
+        System.out.println("starting to semantically compare");
+        for (int i = 0; i < modelMappings.size() -1;  i++){
+            for(int j = i +1; j < modelMappings.size(); j++){
+                onCompare.compare(modelMappings.get(i), modelMappings.get(j));
+                onCompare.compare(modelMappings.get(j), modelMappings.get(i));
+            }
+
+            System.out.println("---- Done with semantically comparing doc: " + (i +1) + "/" + (modelMappings.size() -1) + " ----");
+        }
     }
 
     @Override
@@ -105,7 +112,7 @@ public class SemanticFileHandler extends FileHandler {
     private void connectPartsToModelReferences(SemanticModelMapping model, Document doc) {
         for (List<Element> parts : model.getMessageParts().values()) {
             for (Element part : parts) {
-                String partName = part.getAttribute("name");
+//                String partName = part.getAttribute("name");
                 String type = part.getAttribute("type");
 
                 Element elem = null;
@@ -115,13 +122,9 @@ public class SemanticFileHandler extends FileHandler {
                     elem = model.getComplexTypes().get(type);
                 }
 
-                //It was found yall!
                 if(elem != null){
-
-
-                    String modelReference = getLastElement(elem.getAttributeNS("*", "modelReference").split("#"));
-
-                    System.out.println("Stuff");
+                    String modelReference = getLastElement(elem.getAttribute("sawsdl:modelReference").split("#"));
+                    model.getPartToModelRef().put(part, modelReference);
                 }
             }
         }

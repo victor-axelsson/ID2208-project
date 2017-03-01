@@ -1,5 +1,6 @@
 package se.kth.webservice.project.parsing;
 
+import se.kth.webservice.project.model.SemanticModelMapping;
 import se.kth.webservice.project.model.XMLModelMapping;
 import se.kth.webservice.project.output.WsdlComparisonResult;
 
@@ -9,6 +10,6 @@ import java.rmi.RemoteException;
 /**
  * Created by victoraxelsson on 2017-02-28.
  */
-public interface IComparable extends Remote{
-    WsdlComparisonResult getSimmilarityRating(XMLModelMapping a, XMLModelMapping b) throws RemoteException;
+public interface IComparable<T> extends Remote{
+    WsdlComparisonResult getSimmilarityRating(T a, T b) throws RemoteException;
 }

@@ -161,7 +161,8 @@ public class Main {
 
 
         //IComparable remoteComparer = getRMIComparator();
-        //IComparable localSemanticComparer = getLocalSemanticComparator();
+        IComparable localSemanticComparer = getLocalSemanticComparator();
+        List<WsdlComparisonResult> results = new ArrayList<>();
 
         //doSyntacticComparisment();
         //doSemanticComparisment();
@@ -170,8 +171,13 @@ public class Main {
         doComparisment(getLocalSemanticComparator(), new SemanticFileHandler(new OnCompare<SemanticModelMapping>() {
             @Override
             public void compare(SemanticModelMapping a, SemanticModelMapping b) {
-                System.out.println("I got some");
+                try {
+                    results.add(localSemanticComparer.getSimmilarityRating(a, b));
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
+
         }));
     }
 

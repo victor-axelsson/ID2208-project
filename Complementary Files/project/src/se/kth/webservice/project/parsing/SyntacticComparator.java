@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by victoraxelsson on 2017-02-28.
  */
-public class SyntacticComparator extends UnicastRemoteObject implements IComparable{
+public class SyntacticComparator extends UnicastRemoteObject implements IComparable<XMLModelMapping>{
 
     public SyntacticComparator() throws RemoteException {}
 
