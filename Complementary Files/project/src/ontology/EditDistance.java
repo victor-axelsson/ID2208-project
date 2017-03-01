@@ -16,12 +16,19 @@ package ontology;
  * limitations under the License.
  */
 
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
 /**
  * @author Wei Hu
  * @see http://ws.nju.edu.cn
  */
-public class EditDistance
+public class EditDistance extends UnicastRemoteObject
 {
+    protected EditDistance() throws RemoteException {
+    }
+
     public static int getEditDistance(String s, String t)
     {
         int d[][];

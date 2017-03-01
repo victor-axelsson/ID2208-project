@@ -10,6 +10,9 @@ import se.kth.webservice.project.parsing.OnCompare;
 import se.kth.webservice.project.parsing.SyntacticComparator;
 import se.kth.webservice.project.parsing.XMLFileHandler;
 
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,19 +42,37 @@ public class Main {
 
         setupSystemProps(args);
 
-        IComparable comparator = new SyntacticComparator();
+        IComparable remoteComparator = null;
+        try {
+            try {
+                LocateRegistry.getRegistry(1099).list();
+            } catch (RemoteException e) {
+                LocateRegistry.createRegistry(1099);
+            }
+            remoteComparator = (IComparable) Naming.lookup("comparator");
+        } catch (Exception e) {
+            System.out.println("The runtime failed: " + e.getMessage());
+            System.exit(0);
+        }
 
-        IWordnet repo = new WordnetSQL();
-        List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
+        //IWordnet repo = new WordnetSQL();
+        //List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
+
+
 
         List<WsdlComparisonResult> results = new ArrayList<>();
 
         //There are 496 comparisments for 32 docs. A doc is not compared to itself.
+        IComparable finalRemoteComparator = remoteComparator;
         XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
             @Override
             public void compare(XMLModelMapping a, XMLModelMapping b) {
-                WsdlComparisonResult rating = comparator.getSimmilarityRating(a, b);
-                results.add(rating);
+                WsdlComparisonResult rating = null;
+                try {
+                    rating = finalRemoteComparator.getSimmilarityRating(a, b);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
                 System.out.println(rating);
             }
         });
