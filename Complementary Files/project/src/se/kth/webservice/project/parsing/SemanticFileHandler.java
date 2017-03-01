@@ -108,10 +108,26 @@ public class SemanticFileHandler extends FileHandler {
                 String partName = part.getAttribute("name");
                 String type = part.getAttribute("type");
 
-                if (model.getSimpleTypes())
+                Element elem = null;
+                if (model.getSimpleTypes().containsKey(type)){
+                    elem = model.getSimpleTypes().get(type);
+                }else if(model.getComplexTypes().containsKey(type)){
+                    elem = model.getComplexTypes().get(type);
+                }
+
+                //It was found yall!
+                if(elem != null){
+
+
+                    String modelReference = getLastElement(elem.getAttributeNS("*", "modelReference").split("#"));
+
+                    System.out.println("Stuff");
+                }
             }
         }
     }
+
+
 
 
     @Override
