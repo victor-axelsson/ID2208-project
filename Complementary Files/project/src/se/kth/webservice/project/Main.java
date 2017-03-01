@@ -4,10 +4,7 @@ import se.kth.webservice.project.data.IWordnet;
 import se.kth.webservice.project.data.WordnetSQL;
 import se.kth.webservice.project.model.DictionaryLookup;
 import se.kth.webservice.project.model.XMLModelMapping;
-import se.kth.webservice.project.parsing.IComparable;
-import se.kth.webservice.project.parsing.OnCompare;
-import se.kth.webservice.project.parsing.SyntacticComparator;
-import se.kth.webservice.project.parsing.XMLFileHandler;
+import se.kth.webservice.project.parsing.*;
 
 import java.util.List;
 
@@ -37,7 +34,12 @@ public class Main {
 
         setupSystemProps(args);
 
+        SemanticParser p = new SemanticParser();
+        p.parse();
+
+        /*
         IComparable comparator = new SyntacticComparator();
+
 
         IWordnet repo = new WordnetSQL();
         List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
@@ -61,6 +63,6 @@ public class Main {
         System.out.println("less than 3 " + SyntacticComparator.counter3);
         System.out.println("less than 2 " + SyntacticComparator.counter2);
         System.out.println("less than 1 " + SyntacticComparator.counter1);
-
+        */
     }
 }
