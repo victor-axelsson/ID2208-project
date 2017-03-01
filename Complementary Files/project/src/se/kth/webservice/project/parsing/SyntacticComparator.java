@@ -35,7 +35,7 @@ public class SyntacticComparator implements IComparable {
                     score = comparison;
                 }
             }
-            if (score != null) {
+            if (score != null && !score.getFirst().isEmpty() && !score.getSecond().isEmpty()) {
                 elementComparisonResults.add(score);
                 avg += score.getScore();
             }
