@@ -34,6 +34,13 @@ public abstract class FileHandler {
     public abstract String getFolderName();
 
 
+    protected String getLastElement(String[] array) {
+        if (array != null && array.length > 0) {
+            return array[array.length - 1];
+        }
+
+        return null;
+    }
 
 
     public void setup(){

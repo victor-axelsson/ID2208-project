@@ -1,6 +1,5 @@
 package se.kth.webservice.project.parsing;
 
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLModel;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import se.kth.webservice.project.model.XMLModelMapping;
