@@ -16,6 +16,8 @@ import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hp.hpl.jena.sparql.junit.QueryTestSuiteFactory.results;
+
 /**
  * Created by victoraxelsson on 2017-02-27.
  */
@@ -38,10 +40,15 @@ public class Main {
         System.setProperty("DB_USERPASSWORD", DB_USERPASSWORD);
     }
 
-    public static void main (String args[]){
+    private static List<WsdlComparisonResult> remoteList;
+    private static List<WsdlComparisonResult> localList;
 
-        setupSystemProps(args);
+    private static IComparable getRMIComparator(){
 
+        //Instatiate the list to store the results in
+        remoteList = new ArrayList<>();
+
+        //Get the remote comparator
         IComparable remoteComparator = null;
         try {
             try {
@@ -55,25 +62,61 @@ public class Main {
             System.exit(0);
         }
 
+        return remoteComparator;
+    }
+
+    private static IComparable getLocalComparator(){
+
+        //Instatiate the list to store the results in
+        localList = new ArrayList<>();
+
+        IComparable localComparer = null;
+        try {
+            localComparer = new SyntacticComparator();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        return localComparer;
+    }
+
+    public static void main (String args[]){
+
+        setupSystemProps(args);
+
         //IWordnet repo = new WordnetSQL();
         //List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
 
 
+        //IComparable remoteComparer = getRMIComparator();
+        IComparable localComparer = getLocalComparator();
 
-        List<WsdlComparisonResult> results = new ArrayList<>();
 
         //There are 496 comparisments for 32 docs. A doc is not compared to itself.
-        IComparable finalRemoteComparator = remoteComparator;
         XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
             @Override
             public void compare(XMLModelMapping a, XMLModelMapping b) {
-                WsdlComparisonResult rating = null;
+
+                /*
+                // Only for remote
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            WsdlComparisonResult rating = finalRemoteComparator.getSimmilarityRating(a, b);
+                            remoteList.add(rating);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                */
+
                 try {
-                    rating = finalRemoteComparator.getSimmilarityRating(a, b);
+                    WsdlComparisonResult rating = localComparer.getSimmilarityRating(b, a);
+                    localList.add(rating);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-                System.out.println(rating);
             }
         });
         fileHandler.setup();
