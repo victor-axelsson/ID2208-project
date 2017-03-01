@@ -15,6 +15,8 @@ import se.kth.webservice.project.parsing.XMLFileHandler;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -55,13 +57,21 @@ public class Main {
             @Override
             public void compare(XMLModelMapping a, XMLModelMapping b) {
                 WsdlComparisonResult rating = comparator.getSimmilarityRating(a, b);
-                results.add(rating);
+                if (rating.getScore() > 0)
+                    results.add(rating);
                 System.out.println(rating);
             }
         });
         fileHandler.setup();
         fileHandler.process();
         fileHandler.startComparing();
+
+      Collections.sort(results, new Comparator<WsdlComparisonResult>() {
+            @Override
+            public int compare(WsdlComparisonResult o1, WsdlComparisonResult o2) {
+                return Double.compare(o2.getScore(), o1.getScore());
+            }
+        });
 
         System.out.println(results.size());
         output(results);
