@@ -1,5 +1,6 @@
 package se.kth.webservice.project;
 
+import se.kth.webservice.project.parsing.SemanticComparator;
 import se.kth.webservice.project.parsing.SyntacticComparator;
 
 import java.rmi.Naming;
@@ -14,6 +15,8 @@ public class MainServer {
     public static void main(String[] args){
         try {
             SyntacticComparator comparator = new SyntacticComparator();
+            SemanticComparator semanticComparator = new SemanticComparator();
+
             // Register the newly created object at rmiregistry.
             try {
                 LocateRegistry.getRegistry(1099).list();
@@ -22,6 +25,7 @@ public class MainServer {
             }
 
             Naming.rebind("comparator", comparator);
+            Naming.rebind("semantic_comparator", semanticComparator);
             System.out.println("My <body> is ready");
         } catch (Exception e) {
             e.printStackTrace();

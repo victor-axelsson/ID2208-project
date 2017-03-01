@@ -16,38 +16,15 @@ import java.util.*;
 /**
  * Created by victoraxelsson on 2017-02-27.
  */
-public class XMLFileHandler {
+public class XMLFileHandler extends FileHandler{
 
-
-    private static final String WSDL_PATH = System.getProperty("WSDLPATH");
-    private List<Document> docs;
     private List<XMLModelMapping> modelMappings;
-    private OnCompare onCompare;
-    private DocumentBuilder dBuilder;
+
     private static Set<String> BASE_TYPES;
 
 
-    private Set<String> blacklist;
     public XMLFileHandler(OnCompare onCompare){
-        this.onCompare = onCompare;
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        dbFactory.setValidating(false);
-        dbFactory.setNamespaceAware(true);
-        try {
-            dBuilder = dbFactory.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
-
-        blacklist = new HashSet<>();
-        blacklist.add("BangoDirectBillingAPIProfile.wsdl");
-        blacklist.add("compositeFlightStatsAPIProfile.wsdl");
-        blacklist.add("DeveloperGardenClickandBuyAPIProfile.wsdl");
-        blacklist.add("GoToBillingAPIProfile.wsdl");
-        blacklist.add("InnovativeMerchantSolutionsAPIProfile.wsdl");
-        blacklist.add("PaymentVisionPayAPIProfile.wsdl");
-
-
+        super(onCompare);
     }
 
     private static Set<String> getBaseTypes(){
@@ -78,91 +55,6 @@ public class XMLFileHandler {
 
         return BASE_TYPES;
     }
-
-    public void setup(){
-
-        try {
-            docs = new ArrayList<>();
-            String[] names = getAllWSDLNames();
-            for(int i = 0; i < names.length; i++){
-
-
-                if(blacklist.contains(names[i])){
-                    System.out.println("It's blacklisted, so skipping: " + names[i]);
-                    continue;
-                }
-
-                System.out.println("Parsing: " + (i + 1) + "/" + names.length + ". " + names[i]);
-
-                Document d = getDocument(names[i]);
-
-                if(d != null){
-                    docs.add(d);
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("Done with parsing");
-
-        //optional, but recommended
-        //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-    }
-
-    private Document getDocument(String fullPath) throws IOException{
-        File fXmlFile = new File(WSDL_PATH + "/" + fullPath);
-
-        Document doc = null;
-        try {
-            doc = dBuilder.parse(fXmlFile);
-            doc.getDocumentElement().normalize();
-        } catch (SAXException e) {
-            System.err.println(fullPath + " is not a valid XML doc");
-            doc = null;
-        }
-
-        return doc;
-    }
-
-    private String[] getAllWSDLNames(){
-
-        File folder = new File(WSDL_PATH);
-        File[] listOfFiles = folder.listFiles();
-        String[] names = new String[listOfFiles.length];
-
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                names[i] = listOfFiles[i].getName();
-            } else if (listOfFiles[i].isDirectory()) {
-                System.out.println("Directory " + listOfFiles[i].getName());
-            }
-        }
-
-        return names;
-    }
-
-    public List<Document> getDocs() {
-        return docs;
-    }
-
-    public List<XMLModelMapping> getModelMappings() {
-        return modelMappings;
-    }
-
-    private static List<Element> toList(NodeList nodes){
-        List<Element> elements = new ArrayList<>();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            Node n = nodes.item(i);
-            if(n instanceof Element){
-                elements.add((Element)nodes.item(i));
-            }
-        }
-        return elements;
-    }
-
-
 
     public void process(){
 
@@ -197,46 +89,13 @@ public class XMLFileHandler {
         //System.out.println("asd");
     }
 
-    private void saveCache(){
-
-        try{
-            // Serialize data object to a file
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("cache.txt"));
-            out.writeObject(modelMappings);
-            out.close();
-
-            /*
-            // Serialize data object to a byte array
-            ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
-            out = new ObjectOutputStream(bos) ;
-            out.writeObject(modelMappings);
-            out.close();
-            */
-
-            // Get the bytes of the serialized object
-            //byte[] buf = bos.toByteArray();
-        } catch (IOException e) {
-        }
+    @Override
+    public String getFolderName() {
+        return "WSDLs";
     }
 
-    //Do we need this?
-    private void processParts(List<Element> parts, String messageName, Document doc){
-        for(int i = 0; i < parts.size(); i++){
-            Element part = parts.get(i);
-
-            if(part.hasAttribute("type")){
-                String type = part.getAttribute("type").split(":")[1];
-
-                //this is a basic type, like string or int
-            }else if(part.hasAttribute("element")){
-                //this is a complex custom type
-            }
-
-        }
-    }
 
     public static boolean isComplexType(Element part, XMLModelMapping model){
-
 
        if(part.hasAttribute("type")){
 
@@ -264,9 +123,6 @@ public class XMLFileHandler {
             //this is a complex custom type
             return true;
         }
-
-
-
 
         return false;
     }

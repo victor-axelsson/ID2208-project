@@ -8,6 +8,6 @@ import java.io.Serializable;
 /**
  * Created by victoraxelsson on 2017-02-28.
  */
-public interface OnCompare extends Serializable{
-    void compare(XMLModelMapping a, XMLModelMapping b);
+public interface OnCompare<T> extends Serializable{
+    void compare(T a, T b);
 }

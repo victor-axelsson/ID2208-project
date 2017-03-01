@@ -1,25 +1,18 @@
 package se.kth.webservice.project;
 
-import se.kth.webservice.project.data.IWordnet;
-import se.kth.webservice.project.data.WordnetSQL;
-import se.kth.webservice.project.model.DictionaryLookup;
+import se.kth.webservice.project.model.SemanticModelMapping;
 import se.kth.webservice.project.model.XMLModelMapping;
 import se.kth.webservice.project.output.ElementComparisonResult;
 import se.kth.webservice.project.output.OperationComparisonResult;
 import se.kth.webservice.project.output.WsdlComparisonResult;
 import se.kth.webservice.project.output_model.*;
-import se.kth.webservice.project.parsing.IComparable;
-import se.kth.webservice.project.parsing.OnCompare;
-import se.kth.webservice.project.parsing.SyntacticComparator;
-import se.kth.webservice.project.parsing.XMLFileHandler;
+import se.kth.webservice.project.parsing.*;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -32,13 +25,14 @@ public class Main {
 
     private static void setupSystemProps(String[] args){
         //Setup system properties
-        String WSDLPATH = args[0];
+        String PROJECT_PATH = args[0];
         String JDBC_DRIVER = args[1];
         String DB_URL = args[2];
         String DB_USERNAME = args[3];
         String DB_USERPASSWORD = args[4];
 
-        System.setProperty("WSDLPATH", WSDLPATH);
+
+        System.setProperty("PROJECT_PATH", PROJECT_PATH);
         System.setProperty("JDBC_DRIVER", JDBC_DRIVER);
         System.setProperty("DB_URL", DB_URL);
         System.setProperty("DB_USERNAME", DB_USERNAME);
@@ -85,23 +79,30 @@ public class Main {
         return localComparer;
     }
 
-    public static void main (String args[]){
+    private static IComparable getLocalSemanticComparator(){
 
-        setupSystemProps(args);
-
-        //IWordnet repo = new WordnetSQL();
-        //List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
+        //Instatiate the list to store the results in
 
 
-        //IComparable remoteComparer = getRMIComparator();
+        IComparable localComparer = null;
+        try {
+            localComparer = new SemanticComparator();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        return localComparer;
+    }
+
+    private static void doSyntacticComparisment(){
         IComparable localComparer = getLocalComparator();
 
-
+        /*
         //There are 496 comparisments for 32 docs. A doc is not compared to itself.
         XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
             @Override
             public void compare(XMLModelMapping a, XMLModelMapping b) {
-                /*
+
                 // Only for remote
                 new Thread(new Runnable() {
                     public void run() {
@@ -113,7 +114,8 @@ public class Main {
                         }
                     }
                 }).start();
-                */
+
+
 
                 try {
                     WsdlComparisonResult rating = localComparer.getSimmilarityRating(b, a);
@@ -123,13 +125,15 @@ public class Main {
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
+
             }
         });
         fileHandler.setup();
         fileHandler.process();
         fileHandler.startComparing();
 
-      Collections.sort(localList, new Comparator<WsdlComparisonResult>() {
+
+        Collections.sort(localList, new Comparator<WsdlComparisonResult>() {
             @Override
             public int compare(WsdlComparisonResult o1, WsdlComparisonResult o2) {
                 return Double.compare(o2.getScore(), o1.getScore());
@@ -138,14 +142,37 @@ public class Main {
 
         System.out.println(localList.size());
         output(localList);
+        */
 
-//        System.out.println("done, minScore is " + SyntacticComparator.minScore +
-//                " number of operation pairs with less than 5 is " + SyntacticComparator.count);
-//        System.out.println("less than 4 " + SyntacticComparator.counter4);
-//        System.out.println("less than 3 " + SyntacticComparator.counter3);
-//        System.out.println("less than 2 " + SyntacticComparator.counter2);
-//        System.out.println("less than 1 " + SyntacticComparator.counter1);
+    }
 
+    private static void doComparisment(IComparable comparable, FileHandler fileHandler){
+        fileHandler.setup();
+        fileHandler.process();
+        fileHandler.startComparing();
+    }
+
+    public static void main (String args[]){
+
+        setupSystemProps(args);
+
+        //IWordnet repo = new WordnetSQL();
+        //List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
+
+
+        //IComparable remoteComparer = getRMIComparator();
+        //IComparable localSemanticComparer = getLocalSemanticComparator();
+
+        //doSyntacticComparisment();
+        //doSemanticComparisment();
+
+
+        doComparisment(getLocalSemanticComparator(), new SemanticFileHandler(new OnCompare<SemanticModelMapping>() {
+            @Override
+            public void compare(SemanticModelMapping a, SemanticModelMapping b) {
+                System.out.println("I got some");
+            }
+        }));
     }
 
     private static void output(List<WsdlComparisonResult> results) {
