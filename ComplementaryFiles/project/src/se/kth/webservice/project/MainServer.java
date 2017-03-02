@@ -13,6 +13,9 @@ import java.rmi.registry.LocateRegistry;
 public class MainServer {
 
     public static void main(String[] args){
+
+        Main.setupSystemProps(args);
+
         try {
             SyntacticComparator comparator = new SyntacticComparator();
             SemanticComparator semanticComparator = new SemanticComparator();

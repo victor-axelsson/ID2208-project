@@ -253,5 +253,7 @@ public class XMLFileHandler extends FileHandler{
 
             System.out.println("---- Done with comparing doc: " + (i +1) + "/" + (modelMappings.size() -1) + " ----");
         }
+
+        onCompare.flush();
     }
 }

@@ -6,10 +6,7 @@ import se.kth.webservice.project.output.OperationComparisonResult;
 import se.kth.webservice.project.output.WsdlComparisonResult;
 import se.kth.webservice.project.output_model.*;
 import se.kth.webservice.project.parsing.*;
-import se.kth.webservice.project.parsing.compare.IComparable;
-import se.kth.webservice.project.parsing.compare.OnCompare;
-import se.kth.webservice.project.parsing.compare.SemanticComparator;
-import se.kth.webservice.project.parsing.compare.SyntacticComparator;
+import se.kth.webservice.project.parsing.compare.*;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
@@ -28,7 +25,7 @@ public class Main {
 
     private static int counter = 0;
 
-    private static void setupSystemProps(String[] args){
+    public static void setupSystemProps(String[] args){
         //Setup system properties
         String PROJECT_PATH = args[0];
         String JDBC_DRIVER = args[1];
@@ -116,6 +113,11 @@ public class Main {
                     e.printStackTrace();
                 }
             }
+
+            @Override
+            public void flush() {
+                // do nothing
+            }
         }));
 
         Collections.sort(localList, new Comparator<WsdlComparisonResult>() {
@@ -145,7 +147,103 @@ public class Main {
         //IComparable remoteComparer = getRMIComparator();
 
         //doSyntacticComparisment();
-        doSemanticComparisment();
+        //doSemanticComparisment();
+
+        doRMIComparismentSemantic();
+    }
+
+    private WsdlComparisonResult rmiRes;
+
+    private static void doRMIComparismentSemantic() {
+
+        IComparable localSemantic = getLocalSemanticComparator();
+        IComparable rmiSemantic = getRMISemanticComparator();
+        List<WsdlComparisonResult> results = new ArrayList<>();
+
+        doComparisment(getLocalSemanticComparator(), new SemanticFileHandler(new OnDoubleCompare<SemanticModelMapping>() {
+
+
+            @Override
+            public void doubleCompare(SemanticModelMapping a1, SemanticModelMapping b1, SemanticModelMapping a2, SemanticModelMapping b2) {
+
+
+                ParallelTasks tasks = new ParallelTasks();
+                //rmiRes = ;
+                //localRes = localSemantic.getSimmilarityRating(a1, b1);
+
+                ScopedTask<WsdlComparisonResult> rmiScope = new ScopedTask<WsdlComparisonResult>(new Closure<WsdlComparisonResult>() {
+                    @Override
+                    public WsdlComparisonResult function() {
+                        try {
+                            return rmiSemantic.getSimmilarityRating(a1, b1);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+
+                        return null;
+                    }
+                });
+
+                ScopedTask<WsdlComparisonResult> localScope = new ScopedTask<WsdlComparisonResult>(new Closure<WsdlComparisonResult>() {
+                    @Override
+                    public WsdlComparisonResult function() {
+                        try {
+                            return localSemantic.getSimmilarityRating(a2, b2);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+
+                        return null;
+                    }
+                });
+
+                tasks.add(rmiScope);
+                tasks.add(localScope);
+                try {
+                    tasks.go();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                WsdlComparisonResult localRes = localScope.getResult();
+                WsdlComparisonResult rmiRes = rmiScope.getResult();
+
+
+
+                System.out.println("Ok, so i got bot results");
+
+            }
+        }));
+
+        Collections.sort(results, new Comparator<WsdlComparisonResult>() {
+            @Override
+            public int compare(WsdlComparisonResult o1, WsdlComparisonResult o2) {
+                return Double.compare(o2.getScore(), o1.getScore());
+            }
+        });
+
+        System.out.println("done");
+
+        //output(results, "semantic_output.xml");
+
+    }
+
+    private static IComparable getRMISemanticComparator() {
+        //Get the remote comparator
+        IComparable remoteComparator = null;
+        try {
+            try {
+                LocateRegistry.getRegistry(1099).list();
+            } catch (RemoteException e) {
+                LocateRegistry.createRegistry(1099);
+            }
+            remoteComparator = (IComparable) Naming.lookup("semantic_comparator");
+        } catch (Exception e) {
+            System.out.println("The runtime failed: " + e.getMessage());
+            System.exit(0);
+        }
+
+        return remoteComparator;
     }
 
     private static void doSemanticComparisment() {
@@ -164,6 +262,11 @@ public class Main {
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
+            }
+
+            @Override
+            public void flush() {
+
             }
 
         }));

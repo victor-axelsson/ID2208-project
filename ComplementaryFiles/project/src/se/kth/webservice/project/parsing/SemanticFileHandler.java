@@ -31,6 +31,8 @@ public class SemanticFileHandler extends FileHandler {
 
             System.out.println("---- Done with semantically comparing doc: " + (i +1) + "/" + (modelMappings.size() -1) + " ----");
         }
+
+        onCompare.flush();
     }
 
     @Override

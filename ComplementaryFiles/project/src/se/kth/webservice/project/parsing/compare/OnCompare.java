@@ -10,4 +10,5 @@ import java.io.Serializable;
  */
 public interface OnCompare<T> extends Serializable{
     void compare(T a, T b);
+    void flush();
 }

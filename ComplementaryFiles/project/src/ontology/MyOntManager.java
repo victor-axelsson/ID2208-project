@@ -1,5 +1,6 @@
 package ontology;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +17,7 @@ import org.semanticweb.owl.model.OWLOntologyCreationException;
 import org.semanticweb.owl.model.OWLOntologyManager;
 
 
-public class MyOntManager {
+public class MyOntManager implements Serializable{
 
 	public enum LUBType {
 		All,  // incorporate all 
