@@ -1,12 +1,15 @@
 package se.kth.webservice.project;
 
 import se.kth.webservice.project.model.SemanticModelMapping;
-import se.kth.webservice.project.model.XMLModelMapping;
 import se.kth.webservice.project.output.ElementComparisonResult;
 import se.kth.webservice.project.output.OperationComparisonResult;
 import se.kth.webservice.project.output.WsdlComparisonResult;
 import se.kth.webservice.project.output_model.*;
 import se.kth.webservice.project.parsing.*;
+import se.kth.webservice.project.parsing.compare.IComparable;
+import se.kth.webservice.project.parsing.compare.OnCompare;
+import se.kth.webservice.project.parsing.compare.SemanticComparator;
+import se.kth.webservice.project.parsing.compare.SyntacticComparator;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
@@ -172,13 +175,19 @@ public class Main {
             @Override
             public void compare(SemanticModelMapping a, SemanticModelMapping b) {
                 try {
-                    results.add(localSemanticComparer.getSimmilarityRating(a, b));
+                    WsdlComparisonResult res = localSemanticComparer.getSimmilarityRating(a, b);
+
+                    if(res.getScore() > 0){
+                        results.add(res);
+                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
             }
 
         }));
+
+        output(results);
     }
 
     private static void output(List<WsdlComparisonResult> results) {

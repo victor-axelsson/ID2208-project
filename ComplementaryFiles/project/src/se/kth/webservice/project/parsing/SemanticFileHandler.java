@@ -4,6 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import se.kth.webservice.project.model.SemanticModelMapping;
+import se.kth.webservice.project.parsing.compare.OnCompare;
 
 import java.util.ArrayList;
 import java.util.List;

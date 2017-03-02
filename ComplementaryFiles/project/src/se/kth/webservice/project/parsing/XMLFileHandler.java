@@ -2,15 +2,10 @@ package se.kth.webservice.project.parsing;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import se.kth.webservice.project.model.XMLModelMapping;
+import se.kth.webservice.project.parsing.compare.OnCompare;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
 import java.util.*;
 
 /**

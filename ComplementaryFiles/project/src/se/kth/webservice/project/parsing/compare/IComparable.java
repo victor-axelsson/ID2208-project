@@ -1,4 +1,4 @@
-package se.kth.webservice.project.parsing;
+package se.kth.webservice.project.parsing.compare;
 
 import se.kth.webservice.project.model.SemanticModelMapping;
 import se.kth.webservice.project.model.XMLModelMapping;

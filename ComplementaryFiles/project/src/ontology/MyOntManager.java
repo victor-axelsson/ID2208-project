@@ -177,7 +177,8 @@ public class MyOntManager {
 	}
 	
 public Vector<OWLObjectProperty> findRelationship (OWLDescription clsX, OWLDescription clsY, Reasoner reasoner) {
-		
+
+
 		Vector<OWLObjectProperty> relationships = new Vector<OWLObjectProperty> ();
 		
  		for (OWLObjectProperty prop1:reasoner.getObjectProperties()) {

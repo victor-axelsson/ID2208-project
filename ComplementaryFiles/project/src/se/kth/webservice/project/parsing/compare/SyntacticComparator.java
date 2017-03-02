@@ -1,4 +1,4 @@
-package se.kth.webservice.project.parsing;
+package se.kth.webservice.project.parsing.compare;
 
 import ontology.EditDistance;
 import org.w3c.dom.Element;
@@ -6,8 +6,8 @@ import se.kth.webservice.project.model.XMLModelMapping;
 import se.kth.webservice.project.output.ElementComparisonResult;
 import se.kth.webservice.project.output.OperationComparisonResult;
 import se.kth.webservice.project.output.WsdlComparisonResult;
+import se.kth.webservice.project.parsing.XMLFileHandler;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -70,8 +70,20 @@ public class SyntacticComparator extends UnicastRemoteObject implements ICompara
         String bName = b.getAttribute("name");
         int res = EditDistance.getEditDistance(aName, bName);
         //System.out.println("Compare " + aName + " and " + bName + " result is " + res);
-        return new ElementComparisonResult(aName, bName, res);
+        return new ElementComparisonResult(aName, bName, convertEditDistanceToScore(res));
     }
+
+
+    private double convertEditDistanceToScore(int score) {
+        if (score == 0) return 1.0;
+        if (score == 1) return 0.95;
+        if (score == 2) return 0.9;
+        if (score == 3) return 0.8;
+        if (score == 4) return 0.7;
+        if (score == 5) return 0.5;
+        return 0.0;
+    }
+
 
     @Override
     public WsdlComparisonResult getSimmilarityRating(XMLModelMapping a, XMLModelMapping b) {

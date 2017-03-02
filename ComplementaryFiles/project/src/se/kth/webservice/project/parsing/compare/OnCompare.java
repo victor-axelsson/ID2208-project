@@ -1,4 +1,4 @@
-package se.kth.webservice.project.parsing;
+package se.kth.webservice.project.parsing.compare;
 
 import org.w3c.dom.Document;
 import se.kth.webservice.project.model.XMLModelMapping;

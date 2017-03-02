@@ -1,7 +1,7 @@
 package se.kth.webservice.project;
 
-import se.kth.webservice.project.parsing.SemanticComparator;
-import se.kth.webservice.project.parsing.SyntacticComparator;
+import se.kth.webservice.project.parsing.compare.SemanticComparator;
+import se.kth.webservice.project.parsing.compare.SyntacticComparator;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
