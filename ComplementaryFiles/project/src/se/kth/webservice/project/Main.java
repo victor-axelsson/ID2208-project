@@ -16,6 +16,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -186,6 +188,13 @@ public class Main {
             }
 
         }));
+
+        Collections.sort(results, new Comparator<WsdlComparisonResult>() {
+            @Override
+            public int compare(WsdlComparisonResult o1, WsdlComparisonResult o2) {
+                return Double.compare(o2.getScore(), o1.getScore());
+            }
+        });
 
         output(results);
     }
