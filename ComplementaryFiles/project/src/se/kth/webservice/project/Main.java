@@ -102,26 +102,11 @@ public class Main {
     private static void doSyntacticComparisment(){
         IComparable localComparer = getLocalComparator();
 
-        /*
+
         //There are 496 comparisments for 32 docs. A doc is not compared to itself.
-        XMLFileHandler fileHandler = new XMLFileHandler(new OnCompare() {
+        doComparisment(localComparer, new XMLFileHandler(new OnCompare() {
             @Override
-            public void compare(XMLModelMapping a, XMLModelMapping b) {
-
-                // Only for remote
-                new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            WsdlComparisonResult rating = finalRemoteComparator.getSimmilarityRating(a, b);
-                            remoteList.add(rating);
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-
-
-
+            public void compare(Object a, Object b) {
                 try {
                     WsdlComparisonResult rating = localComparer.getSimmilarityRating(b, a);
                     if (rating.getScore() > 0){
@@ -130,13 +115,8 @@ public class Main {
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-
             }
-        });
-        fileHandler.setup();
-        fileHandler.process();
-        fileHandler.startComparing();
-
+        }));
 
         Collections.sort(localList, new Comparator<WsdlComparisonResult>() {
             @Override
@@ -146,9 +126,7 @@ public class Main {
         });
 
         System.out.println(localList.size());
-        output(localList);
-        */
-
+        output(localList, "syntactic_output.xml");
     }
 
     private static void doComparisment(IComparable comparable, FileHandler fileHandler){
@@ -164,14 +142,15 @@ public class Main {
         //IWordnet repo = new WordnetSQL();
         //List<DictionaryLookup> lookups =  repo.lookupInDictionary("gravy");
 
-
         //IComparable remoteComparer = getRMIComparator();
-        IComparable localSemanticComparer = getLocalSemanticComparator();
-        List<WsdlComparisonResult> results = new ArrayList<>();
 
         //doSyntacticComparisment();
-        //doSemanticComparisment();
+        doSemanticComparisment();
+    }
 
+    private static void doSemanticComparisment() {
+        IComparable localSemanticComparer = getLocalSemanticComparator();
+        List<WsdlComparisonResult> results = new ArrayList<>();
 
         doComparisment(getLocalSemanticComparator(), new SemanticFileHandler(new OnCompare<SemanticModelMapping>() {
             @Override
@@ -196,10 +175,10 @@ public class Main {
             }
         });
 
-        output(results);
+        output(results, "semantic_output.xml");
     }
 
-    private static void output(List<WsdlComparisonResult> results) {
+    private static void output(List<WsdlComparisonResult> results, String filename) {
         ObjectFactory objectFactory = new ObjectFactory();
         WSMatchingType wsMatchingType = objectFactory.createWSMatchingType();
         for (WsdlComparisonResult wsdlComparisonResult : results) {
@@ -224,16 +203,16 @@ public class Main {
             }
             wsMatchingType.getMacthing().add(matchedWebServiceType);
         }
-        saveToFile(wsMatchingType);
+        saveToFile(wsMatchingType, filename);
     }
 
-    private static void saveToFile(WSMatchingType wsMatchingType) {
+    private static void saveToFile(WSMatchingType wsMatchingType, String filename) {
         try {
             javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.newInstance(wsMatchingType.getClass().getPackage().getName());
             javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            OutputStream os = new FileOutputStream( new File("output.xml" ));
+            OutputStream os = new FileOutputStream( new File(filename ));
             marshaller.marshal( wsMatchingType, os );
             os.close();
         } catch (javax.xml.bind.JAXBException ex) {

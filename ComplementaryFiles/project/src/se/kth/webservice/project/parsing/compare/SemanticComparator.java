@@ -82,8 +82,8 @@ public class SemanticComparator extends UnicastRemoteObject implements IComparab
                 if (score == null || comparison.getScore() >= score.getScore()) {
                     score = comparison;
                 }
-
             }
+
 
             if (score != null) {
                 elementComparisonResults.add(score);

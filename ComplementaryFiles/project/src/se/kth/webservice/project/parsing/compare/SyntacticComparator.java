@@ -37,11 +37,12 @@ public class SyntacticComparator extends UnicastRemoteObject implements ICompara
             ElementComparisonResult score = null;
             for (Element bElem : bParts) {
                 ElementComparisonResult comparison = compareElements(aElem, bElem);
-                if (score == null || comparison.getScore() <= score.getScore()) {
+                if (score == null || comparison.getScore() >= score.getScore()) {
                     score = comparison;
                 }
             }
-            if (score != null) {
+
+            if (score != null && !score.getFirst().isEmpty() && !score.getSecond().isEmpty()) {
                 elementComparisonResults.add(score);
                 avg += score.getScore();
             }
@@ -51,16 +52,6 @@ public class SyntacticComparator extends UnicastRemoteObject implements ICompara
         if (elementComparisonResults.size() > 0) {
             avg = avg / elementComparisonResults.size();
         }
-
-//        if (avg <= minScore) minScore = avg;
-//        if (avg < 5) {
-//            System.out.println(outputMessageA + " and " + inputMessageB + " have a score of " + avg);
-//            count++;
-//            if (avg < 4) counter4++;
-//            if (avg < 3) counter3++;
-//            if (avg < 2) counter2++;
-//            if (avg < 1) counter1++;
-//        }
 
         return new OperationComparisonResult(outputMessageA, inputMessageB, avg, elementComparisonResults);
     }
