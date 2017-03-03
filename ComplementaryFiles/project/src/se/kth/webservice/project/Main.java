@@ -101,7 +101,7 @@ public class Main {
 
 
         //There are 496 comparisments for 32 docs. A doc is not compared to itself.
-        doComparisment(localComparer, new XMLFileHandler(new OnCompare() {
+        doComparisment(new XMLFileHandler(new OnCompare() {
             @Override
             public void compare(Object a, Object b) {
                 try {
@@ -131,7 +131,7 @@ public class Main {
         output(localList, "syntactic_output.xml");
     }
 
-    private static void doComparisment(IComparable comparable, FileHandler fileHandler){
+    private static void doComparisment(FileHandler fileHandler){
         fileHandler.setup();
         fileHandler.process();
         fileHandler.startComparing();
@@ -146,10 +146,10 @@ public class Main {
 
         //IComparable remoteComparer = getRMIComparator();
 
-        //doSyntacticComparisment();
-        //doSemanticComparisment();
+        doSyntacticComparisment();
+        doSemanticComparisment();
 
-        doRMIComparismentSemantic();
+        //doRMIComparismentSemantic();
     }
 
     private WsdlComparisonResult rmiRes;
@@ -160,7 +160,7 @@ public class Main {
         IComparable rmiSemantic = getRMISemanticComparator();
         List<WsdlComparisonResult> results = new ArrayList<>();
 
-        doComparisment(getLocalSemanticComparator(), new SemanticFileHandler(new OnDoubleCompare<SemanticModelMapping>() {
+        doComparisment(new SemanticFileHandler(new OnDoubleCompare<SemanticModelMapping>() {
 
 
             @Override
@@ -250,7 +250,7 @@ public class Main {
         IComparable localSemanticComparer = getLocalSemanticComparator();
         List<WsdlComparisonResult> results = new ArrayList<>();
 
-        doComparisment(getLocalSemanticComparator(), new SemanticFileHandler(new OnCompare<SemanticModelMapping>() {
+        doComparisment(new SemanticFileHandler(new OnCompare<SemanticModelMapping>() {
             @Override
             public void compare(SemanticModelMapping a, SemanticModelMapping b) {
                 try {
